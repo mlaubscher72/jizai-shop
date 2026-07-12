@@ -1,36 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# JIZAI Shop — 自在
 
-## Getting Started
+Premium budo-rooted ritual streetwear. Storefront + Shop + Admin-Backoffice in einem Next.js-Projekt.
 
-First, run the development server:
+## Schnellstart (Demo-Modus)
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev -- --port 3005
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Shop:** http://localhost:3005
+- **Admin:** http://localhost:3005/admin — Passwort: `jizai2026`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Ohne Konfiguration läuft alles im **Demo-Modus**: Daten liegen in `data/store.json`
+(wird beim ersten Start automatisch mit Drop 01 befüllt), der Checkout simuliert die Zahlung.
+`data/store.json` löschen = zurück auf Werkszustand.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Features
 
-## Learn More
+**Storefront**
+- One-Pager mit allen Brand-Sektionen (Hero, Manifesto/Enso, Pillars, Drop 01, Shu-Ha-Ri, Lookbook, Waitlist)
+- Produktseiten mit Grössenwahl, Live-Bestand ("Nur noch X Stück") und Ausverkauft-Zustand
+- Warenkorb-Drawer (localStorage), Checkout mit Lieferadresse, Bestellbestätigung
+- Waitlist-Formular schreibt in die Datenbank
 
-To learn more about Next.js, take a look at the following resources:
+**Admin (`/admin`)**
+- Dashboard: Umsatz, offene Bestellungen, Lagerbestand, Low-Stock-Warnung
+- Produkte: Preis, Bestand pro Grösse, Sichtbarkeit — wirkt sofort im Shop
+- Bestellungen: Details, Statuswechsel (bezahlt → versendet → storniert; Storno bucht Bestand zurück)
+- Waitlist mit CSV-Export
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Technik**
+- Preise werden ausschliesslich serverseitig berechnet, Bestand wird atomar reserviert (kein Überverkauf)
+- `?shot=1`-Parameter für Screenshots ohne Animationen (`&sec=.drop` springt zu einer Sektion)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Go-Live in 3 Schritten
 
-## Deploy on Vercel
+### 1. Supabase (echte Datenbank)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Projekt auf [supabase.com](https://supabase.com) erstellen
+2. Im SQL-Editor den Inhalt von [`supabase/schema.sql`](supabase/schema.sql) ausführen (legt Tabellen + Drop-01-Seed an)
+3. In `.env.local` eintragen (Vorlage: [`.env.example`](.env.example)):
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+   SUPABASE_SERVICE_ROLE_KEY=eyJ...   ← Settings → API → service_role
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Sobald beide Variablen gesetzt sind, schaltet der Shop automatisch von `data/store.json` auf Supabase um.
+
+### 2. Stripe (echte Zahlungen, inkl. TWINT)
+
+1. [Stripe-Account](https://stripe.com) erstellen, in `.env.local`:
+   ```
+   STRIPE_SECRET_KEY=sk_test_...      ← zuerst Test-Modus!
+   NEXT_PUBLIC_BASE_URL=https://jizai.ch
+   ```
+2. Webhook einrichten: Stripe-Dashboard → Developers → Webhooks →
+   Endpoint `https://jizai.ch/api/stripe-webhook`,
+   Events: `checkout.session.completed` und `checkout.session.expired`.
+   Das Signing-Secret als `STRIPE_WEBHOOK_SECRET=whsec_...` eintragen.
+3. TWINT im Stripe-Dashboard unter Payment Methods aktivieren (für CH-Accounts verfügbar).
+4. Mit Testkarte `4242 4242 4242 4242` durchspielen, dann Live-Keys eintragen.
+
+### 3. Deployment & Admin absichern
+
+```
+ADMIN_PASSWORD=ein-langes-eigenes-passwort
+ADMIN_SESSION_SECRET=zufaelliger-string-mind-32-zeichen
+```
+
+Empfohlen: [Vercel](https://vercel.com) — Repo pushen, Projekt importieren, alle Variablen aus
+`.env.example` als Environment Variables setzen. **Wichtig:** In Produktion funktioniert der
+Demo-Datei-Speicher nicht (serverless = kein beständiges Dateisystem) — Supabase ist dort Pflicht.
+
+## Projektstruktur
+
+```
+src/lib/          Datenlayer (jsondb = Demo, supabasedb = Produktion), Auth, Typen
+src/app/          Storefront, Produkt, Checkout, Admin, API-Routen
+src/components/   Cart, Drawer, Nav, Animationen (SiteFx/HomeFx)
+supabase/         schema.sql für das Supabase-Setup
+public/assets/    Weboptimierte Brand-Bilder
+```
