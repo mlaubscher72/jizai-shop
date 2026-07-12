@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { db } from "@/lib/db";
+import { sendOrderConfirmation } from "@/lib/mail";
 
 /**
  * Stripe-Webhook: markiert Bestellungen nach erfolgreicher Zahlung als "paid".
@@ -31,6 +32,8 @@ export async function POST(req: Request) {
     const orderId = session.metadata?.orderId;
     if (orderId) {
       await db.updateOrderStatus(orderId, "paid");
+      const order = await db.getOrder(orderId);
+      if (order) await sendOrderConfirmation({ ...order, status: "paid" });
     }
   }
 

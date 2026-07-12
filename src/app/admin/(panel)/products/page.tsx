@@ -1,22 +1,30 @@
 import { db } from "@/lib/db";
+import { getSession, roleAtLeast } from "@/lib/auth";
 import { updateProductAction } from "../../actions";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminProducts() {
   const products = await db.getProducts();
+  const session = await getSession();
+  const canEdit = session ? roleAtLeast(session.role, "manager") : false;
 
   return (
     <main className="admin-content">
       <header className="admin-head">
         <h1>Produkte</h1>
-        <p className="admin-mode">Preis, Bestände und Sichtbarkeit — Änderungen wirken sofort im Shop.</p>
+        <p className="admin-mode">
+          {canEdit
+            ? "Preis, Bestände und Sichtbarkeit — Änderungen wirken sofort im Shop."
+            : "Nur-Lese-Zugriff — zum Bearbeiten braucht es die Rolle Manager oder Admin."}
+        </p>
       </header>
 
       <div className="admin-products">
         {products.map((p) => (
           <form action={updateProductAction} className="admin-product" key={p.id}>
             <input type="hidden" name="id" value={p.id} />
+            <fieldset disabled={!canEdit} className="ap-fieldset">
             <div className="ap-media">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={p.image} alt={p.name} />
@@ -55,11 +63,14 @@ export default async function AdminProducts() {
                 <span className="ap-sum">
                   Total {p.variants.reduce((s, v) => s + v.stock, 0)} Stück
                 </span>
-                <button type="submit" className="btn-seal btn-small" data-hover>
-                  Speichern
-                </button>
+                {canEdit && (
+                  <button type="submit" className="btn-seal btn-small" data-hover>
+                    Speichern
+                  </button>
+                )}
               </div>
             </div>
+            </fieldset>
           </form>
         ))}
       </div>

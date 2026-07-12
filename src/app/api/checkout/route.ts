@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { db } from "@/lib/db";
+import { sendOrderConfirmation } from "@/lib/mail";
 import { Order, OrderItem } from "@/lib/types";
 
 const SHIPPING_RAPPEN = 900;
@@ -129,5 +130,6 @@ export async function POST(req: Request) {
   // Demo-Modus: Bestellung direkt als bezahlt markieren
   order.status = "paid";
   await db.createOrder(order);
+  await sendOrderConfirmation(order); // blockiert nie — Fehler werden nur geloggt
   return NextResponse.json({ mode: "demo", orderId: order.id });
 }

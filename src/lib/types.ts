@@ -64,6 +64,24 @@ export interface WaitlistEntry {
   createdAt: string;
 }
 
+export type AdminRole = "admin" | "manager" | "viewer";
+
+export const ROLE_LABEL: Record<AdminRole, string> = {
+  admin: "Admin",
+  manager: "Manager",
+  viewer: "Viewer",
+};
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  name: string;
+  role: AdminRole;
+  /** Format: scrypt$<salt-hex>$<hash-hex> */
+  passwordHash: string;
+  createdAt: string;
+}
+
 export function formatCHF(rappen: number): string {
   return `CHF ${(rappen / 100).toFixed(2).replace(/\.00$/, ".–")}`;
 }

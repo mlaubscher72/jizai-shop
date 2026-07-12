@@ -21,15 +21,19 @@ export default async function AdminLogin({
           <p>Admin-Zugang</p>
         </div>
         <label>
-          <span>Passwort</span>
-          <input type="password" name="password" required autoFocus placeholder="••••••••" />
+          <span>E-Mail</span>
+          <input type="email" name="email" placeholder="du@jizai.ch" autoComplete="username" autoFocus />
         </label>
-        {error && <p className="checkout-error">Falsches Passwort.</p>}
+        <label>
+          <span>Passwort</span>
+          <input type="password" name="password" required placeholder="••••••••" autoComplete="current-password" />
+        </label>
+        {error && <p className="checkout-error">Login fehlgeschlagen — E-Mail oder Passwort prüfen.</p>}
         <button type="submit" className="btn-seal" data-hover>
           Anmelden
         </button>
         <p className="admin-login-hint">
-          Demo-Passwort: <code>jizai2026</code> — für Produktion <code>ADMIN_PASSWORD</code> setzen.
+          Root-Zugang: E-Mail leer lassen und das <code>ADMIN_PASSWORD</code> verwenden.
         </p>
       </form>
     </main>

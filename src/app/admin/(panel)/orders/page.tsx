@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { getSession, roleAtLeast } from "@/lib/auth";
 import { formatCHF, OrderStatus } from "@/lib/types";
 import { setOrderStatusAction } from "../../actions";
 
@@ -13,6 +14,8 @@ const STATUS_LABEL: Record<OrderStatus, string> = {
 
 export default async function AdminOrders() {
   const orders = await db.getOrders();
+  const session = await getSession();
+  const canEdit = session ? roleAtLeast(session.role, "manager") : false;
 
   return (
     <main className="admin-content">
@@ -62,7 +65,7 @@ export default async function AdminOrders() {
                   </div>
                 </div>
                 <div className="ao-actions">
-                  {(["paid", "shipped", "cancelled"] as OrderStatus[])
+                  {canEdit && (["paid", "shipped", "cancelled"] as OrderStatus[])
                     .filter((s) => s !== o.status)
                     .map((s) => (
                       <form action={setOrderStatusAction} key={s}>

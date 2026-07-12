@@ -29,6 +29,16 @@ Ohne Konfiguration läuft alles im **Demo-Modus**: Daten liegen in `data/store.j
 - Produkte: Preis, Bestand pro Grösse, Sichtbarkeit — wirkt sofort im Shop
 - Bestellungen: Details, Statuswechsel (bezahlt → versendet → storniert; Storno bucht Bestand zurück)
 - Waitlist mit CSV-Export
+- **Benutzerverwaltung mit Rollen:** Admin (alles), Manager (Produkte & Bestellungen),
+  Viewer (nur lesen). Login mit E-Mail + Passwort; der Root-Zugang über `ADMIN_PASSWORD`
+  (E-Mail-Feld leer lassen) bleibt als Rettungsanker immer aktiv.
+
+**E-Mail-Bestätigungen**
+- Kund:innen erhalten nach der Bestellung eine gebrandete Bestätigung mit allen Angaben
+  (Demo-Checkout: sofort; Stripe: nach bestätigter Zahlung via Webhook)
+- Versand über [Resend](https://resend.com) — `RESEND_API_KEY` setzen, Domain verifizieren,
+  `MAIL_FROM` konfigurieren. Ohne Key: Demo-Modus (Mail wird nur geloggt)
+- Optional `ORDER_NOTIFY_EMAIL`: du bekommst bei jeder Bestellung eine Kopie
 
 **Technik**
 - Preise werden ausschliesslich serverseitig berechnet, Bestand wird atomar reserviert (kein Überverkauf)

@@ -4,7 +4,7 @@
  * Schema: supabase/schema.sql
  */
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
-import { Order, Product, ProductVariant, WaitlistEntry } from "./types";
+import { AdminUser, Order, Product, ProductVariant, WaitlistEntry } from "./types";
 
 let client: SupabaseClient | null = null;
 
@@ -175,4 +175,71 @@ export const supabaseDb = {
     if (error) throw error;
     return (data ?? []).map((r) => ({ email: r.email, createdAt: r.created_at }));
   },
+
+  /* ---------- Admin-Benutzer ---------- */
+
+  async getUsers(): Promise<AdminUser[]> {
+    const { data, error } = await sb().from("admin_users").select("*").order("created_at");
+    if (error) throw error;
+    return (data ?? []).map(rowToUser);
+  },
+
+  async getUserByEmail(email: string): Promise<AdminUser | null> {
+    const { data, error } = await sb()
+      .from("admin_users")
+      .select("*")
+      .ilike("email", email)
+      .maybeSingle();
+    if (error) throw error;
+    return data ? rowToUser(data) : null;
+  },
+
+  async createUser(user: AdminUser): Promise<void> {
+    const { error } = await sb().from("admin_users").insert({
+      id: user.id,
+      email: user.email.toLowerCase(),
+      name: user.name,
+      role: user.role,
+      password_hash: user.passwordHash,
+      created_at: user.createdAt,
+    });
+    if (error) {
+      if (error.code === "23505") throw new Error("Diese E-Mail ist bereits vergeben");
+      throw error;
+    }
+  },
+
+  async updateUser(id: string, patch: Partial<AdminUser>): Promise<void> {
+    const row: Record<string, unknown> = {};
+    if (patch.name !== undefined) row.name = patch.name;
+    if (patch.role !== undefined) row.role = patch.role;
+    if (patch.passwordHash !== undefined) row.password_hash = patch.passwordHash;
+    const { error } = await sb().from("admin_users").update(row).eq("id", id);
+    if (error) throw error;
+  },
+
+  async deleteUser(id: string): Promise<void> {
+    const { error } = await sb().from("admin_users").delete().eq("id", id);
+    if (error) throw error;
+  },
 };
+
+interface UserRow {
+  id: string;
+  email: string;
+  name: string;
+  role: AdminUser["role"];
+  password_hash: string;
+  created_at: string;
+}
+
+function rowToUser(r: UserRow): AdminUser {
+  return {
+    id: r.id,
+    email: r.email,
+    name: r.name,
+    role: r.role,
+    passwordHash: r.password_hash,
+    createdAt: r.created_at,
+  };
+}

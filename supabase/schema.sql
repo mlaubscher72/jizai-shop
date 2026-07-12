@@ -42,6 +42,16 @@ create table if not exists waitlist (
   created_at timestamptz not null default now()
 );
 
+create table if not exists admin_users (
+  id text primary key,
+  email text unique not null,
+  name text not null default '',
+  role text not null default 'viewer' check (role in ('admin','manager','viewer')),
+  password_hash text not null,
+  created_at timestamptz not null default now()
+);
+alter table admin_users enable row level security;
+
 -- Atomare Bestandsreservierung (alles oder nichts)
 create or replace function reserve_stock(items jsonb)
 returns void language plpgsql as $$

@@ -5,13 +5,14 @@
  */
 import { promises as fs } from "fs";
 import path from "path";
-import { Order, Product, WaitlistEntry } from "./types";
+import { AdminUser, Order, Product, WaitlistEntry } from "./types";
 import { SEED_PRODUCTS } from "./seed";
 
 interface Store {
   products: Product[];
   orders: Order[];
   waitlist: WaitlistEntry[];
+  users?: AdminUser[];
 }
 
 const DATA_DIR = path.join(process.cwd(), "data");
@@ -130,5 +131,40 @@ export const jsonDb = {
 
   async getWaitlist(): Promise<WaitlistEntry[]> {
     return (await load()).waitlist;
+  },
+
+  /* ---------- Admin-Benutzer ---------- */
+
+  async getUsers(): Promise<AdminUser[]> {
+    return (await load()).users ?? [];
+  },
+
+  async getUserByEmail(email: string): Promise<AdminUser | null> {
+    const users = (await load()).users ?? [];
+    return users.find((u) => u.email.toLowerCase() === email.toLowerCase()) ?? null;
+  },
+
+  async createUser(user: AdminUser): Promise<void> {
+    const store = await load();
+    store.users = store.users ?? [];
+    if (store.users.some((u) => u.email.toLowerCase() === user.email.toLowerCase())) {
+      throw new Error("Diese E-Mail ist bereits vergeben");
+    }
+    store.users.push(user);
+    await save(store);
+  },
+
+  async updateUser(id: string, patch: Partial<AdminUser>): Promise<void> {
+    const store = await load();
+    const user = (store.users ?? []).find((u) => u.id === id);
+    if (!user) throw new Error("Benutzer nicht gefunden");
+    Object.assign(user, patch, { id });
+    await save(store);
+  },
+
+  async deleteUser(id: string): Promise<void> {
+    const store = await load();
+    store.users = (store.users ?? []).filter((u) => u.id !== id);
+    await save(store);
   },
 };
