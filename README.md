@@ -1,6 +1,6 @@
 # JIZAI Shop — 自在
 
-Premium budo-rooted ritual streetwear. Storefront + Shop + Admin-Backoffice in einem Next.js-Projekt.
+Urban streetwear shaped by discipline, movement and Japanese restraint. Storefront + Shop + Admin-Backoffice in einem Next.js-Projekt.
 
 ## Schnellstart (Demo-Modus)
 

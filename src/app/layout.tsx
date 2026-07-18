@@ -29,7 +29,7 @@ const zenkaku = Zen_Kaku_Gothic_New({
 export const metadata: Metadata = {
   title: "JIZAI — Begin before the noise.",
   description:
-    "JIZAI — premium budo-rooted ritual streetwear. Japanese minimalism, quiet form, free mind. Drop 01 · 守 SHU.",
+    "JIZAI — Urban Streetwear, geformt von Disziplin, Bewegung und japanischer Zurückhaltung. Drop 01 · 守破 SHU × HA.",
 };
 
 export default function RootLayout({

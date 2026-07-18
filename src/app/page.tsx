@@ -1,14 +1,47 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { formatCHF } from "@/lib/types";
+import { formatCHF, Product } from "@/lib/types";
+import { isOrderable } from "@/lib/seed";
 import HomeFx from "@/components/HomeFx";
 import WaitlistForm from "@/components/WaitlistForm";
 import Footer from "@/components/Footer";
 
 export const dynamic = "force-dynamic";
 
+function DropCard({ product }: { product: Product }) {
+  const ha = !isOrderable(product);
+  const stock = product.variants.reduce((s, v) => s + v.stock, 0);
+  return (
+    <Link href={`/product/${product.slug}`} className="piece" data-accent={product.accent} data-hover>
+      <div className="piece-media">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={product.image} alt={product.name} loading="lazy" />
+        {ha ? (
+          <span className="piece-badge is-ha">破 BALD</span>
+        ) : stock <= 0 ? (
+          <span className="piece-badge is-out">Ausverkauft</span>
+        ) : stock <= 15 ? (
+          <span className="piece-badge">Nur noch {stock} Stück</span>
+        ) : null}
+      </div>
+      <div className="piece-info">
+        <span className="piece-kanji">{product.kanji}</span>
+        <h3>
+          {product.name} <em>{product.kanji}</em>
+        </h3>
+        <p>{product.description}</p>
+        <span className="piece-meta">
+          {product.subtitle} · {formatCHF(product.priceRappen)}
+        </span>
+      </div>
+    </Link>
+  );
+}
+
 export default async function Home() {
   const products = (await db.getProducts()).filter((p) => p.active);
+  const shu = products.filter((p) => isOrderable(p));
+  const ha = products.filter((p) => !isOrderable(p));
 
   return (
     <>
@@ -50,7 +83,7 @@ export default async function Home() {
 
           <div className="hero-content">
             <p className="hero-eyebrow reveal-line">
-              <span>Budo-rooted ritual streetwear · Liestal, CH</span>
+              <span>Urban streetwear · Liestal, CH</span>
             </p>
             <h1 className="hero-title" aria-label="JIZAI">
               <span className="ht-letter">J</span>
@@ -72,7 +105,7 @@ export default async function Home() {
               <span className="hero-scroll-txt">Scroll</span>
               <span className="hero-scroll-line"></span>
             </span>
-            <span className="hero-drop-tag">Drop 01 · 守 SHU — jetzt bestellbar</span>
+            <span className="hero-drop-tag">Drop 01 · 守 SHU — jetzt bestellbar · 破 HA — bald</span>
           </div>
         </section>
 
@@ -106,8 +139,8 @@ export default async function Home() {
             </h2>
             <p className="manifesto-note reveal-fade">
               JIZAI kommt nicht <em>über</em> Japan — JIZAI kommt <em>aus einer Praxis</em>: jahrzehntelang gelebte
-              Kampfkunst, der Atem vor der Handlung, die erste Kata des Tages. Kaffee und Matcha sind das Ritual.
-              Fashion ist das Produkt. Die Praxis ist der Grund.
+              Kampfkunst, der Atem vor der Handlung, die erste Kata des Tages. Fashion ist das Produkt. Die Praxis
+              ist der Grund.
             </p>
           </div>
         </section>
@@ -124,7 +157,7 @@ export default async function Home() {
               { k: "形", t: "Form", d: "Disziplin und Präzision. Nichts ist zufällig gesetzt." },
               { k: "息", t: "Breath", d: "Der Atem vor der Handlung. Der ruhige Moment vor dem Tag." },
               { k: "静", t: "Silence", d: "Reduktion statt Lärm. Ruhe und Fokus als Sprache." },
-              { k: "匠", t: "Craft", d: "Indigo, Sashiko, Keramik, Sumi-e — japanisches Handwerk." },
+              { k: "匠", t: "Craft", d: "Schwere Stoffe, präzise Konstruktion, Sumi-e-Handschrift. Qualität, die man greift." },
               { k: "響", t: "Sound", d: "Jede Kollektion trägt ihr eigenes Soundscape." },
             ].map((p, i) => (
               <article className="pillar" data-hover key={p.t}>
@@ -137,55 +170,44 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* DROP 01 — Produkte aus der DB */}
+        {/* DROP 01 — Zwei Akte, zwei Zustände */}
         <section className="drop" id="drop">
           <div className="drop-sticky">
             <div className="drop-head">
               <p className="section-label">
-                <span>Drop 01 · 守 SHU — Die Form befolgen</span>
+                <span>Drop 01 · 守破 SHU × HA</span>
               </p>
               <h2 className="drop-title">
-                Begin
+                Die Form.
                 <br />
-                in silence.
+                Und ihr Bruch.
               </h2>
+              <p className="drop-intro">
+                Zwei Akte, ein Drop: SHU hält die Form — HA bricht sie. Begin in silence. Break with precision.
+              </p>
               <p className="drop-progress">
                 <span id="dropIndex">01</span> / {String(products.length).padStart(2, "0")}
               </p>
             </div>
             <div className="drop-track" id="dropTrack">
-              {products.map((product) => {
-                const stock = product.variants.reduce((s, v) => s + v.stock, 0);
-                return (
-                  <Link
-                    href={`/product/${product.slug}`}
-                    className="piece"
-                    data-accent={product.accent}
-                    data-hover
-                    key={product.id}
-                  >
-                    <div className="piece-media">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={product.image} alt={`JIZAI ${product.name} Tee`} loading="lazy" />
-                      {stock <= 0 ? (
-                        <span className="piece-badge is-out">Ausverkauft</span>
-                      ) : stock <= 15 ? (
-                        <span className="piece-badge">Nur noch {stock} Stück</span>
-                      ) : null}
-                    </div>
-                    <div className="piece-info">
-                      <span className="piece-kanji">{product.kanji}</span>
-                      <h3>
-                        {product.name} <em>— {product.subtitle}</em>
-                      </h3>
-                      <p>{product.description}</p>
-                      <span className="piece-meta">
-                        Oversized Heavyweight Tee · 280 GSM · {formatCHF(product.priceRappen)}
-                      </span>
-                    </div>
-                  </Link>
-                );
-              })}
+              <div className="act-panel">
+                <span className="act-kanji">守</span>
+                <h3>Akt I — SHU</h3>
+                <p>Die Form befolgen · Begin in silence.</p>
+                <span className="act-state">Jetzt bestellbar</span>
+              </div>
+              {shu.map((product) => (
+                <DropCard product={product} key={product.id} />
+              ))}
+              <div className="act-panel is-ha">
+                <span className="act-kanji">破</span>
+                <h3>Akt II — HA</h3>
+                <p>Die Form brechen · Break with precision.</p>
+                <span className="act-state">Bald</span>
+              </div>
+              {ha.map((product) => (
+                <DropCard product={product} key={product.id} />
+              ))}
             </div>
           </div>
         </section>
@@ -197,9 +219,9 @@ export default async function Home() {
           </p>
           <div className="shuhari-rows">
             {[
-              { k: "守", n: "SHU", s: "Die Form befolgen", d: "Das Fundament. Reduziert, diszipliniert. Begin in silence.", drop: "Drop 01" },
-              { k: "破", n: "HA", s: "Die Form brechen", d: "Mehr Kontrast. Der rebellische Unterton bricht auf.", drop: "Drop 02" },
-              { k: "離", n: "RI", s: "Die Form transzendieren", d: "自在 selbst — mühelose Freiheit, die freiesten Stücke.", drop: "Drop 03" },
+              { k: "守", n: "SHU", s: "Die Form befolgen", d: "Reduziert, diszipliniert, gehaltene Energie. Begin in silence.", drop: "Drop 01 · Akt I — jetzt bestellbar" },
+              { k: "破", n: "HA", s: "Die Form brechen", d: "Bewegung, Kontrast, der Cut als Signatur. Break with precision.", drop: "Drop 01 · Akt II — bald" },
+              { k: "離", n: "RI", s: "Die Form transzendieren", d: "自在 selbst — mühelose Freiheit, freie Materialität.", drop: "Der Horizont" },
             ].map((row) => (
               <div className="shuhari-row reveal-fade" data-hover key={row.n}>
                 <span className="sh-kanji">{row.k}</span>
@@ -234,12 +256,39 @@ export default async function Home() {
           </div>
         </section>
 
+        {/* ABOUT / FOUNDER */}
+        <section className="about" id="about">
+          <div className="about-inner">
+            <span className="about-seal" aria-hidden="true">自在</span>
+            <p className="about-lead reveal-fade">
+              Vierundvierzig Jahre auf der Matte.
+              <br />
+              Nicht als Sport. Als Weg.
+            </p>
+            <p className="about-text reveal-fade">
+              Was diese Jahre lehren, steht nicht in einem Satz. Es ist die Form, die man tausendmal wiederholt,
+              bis sie einem gehört. Der Moment, in dem man sie bricht. Und das, was danach bleibt, wenn man
+              aufhört, über sie nachzudenken.
+            </p>
+            <p className="about-kanji reveal-fade">守 — lernen. 破 — brechen. 離 — frei sein.</p>
+            <p className="about-text reveal-fade">
+              JIZAI kommt aus diesem Weg. Nicht aus dem Dojo, das man auf ein Shirt druckt, sondern aus dem, was
+              der Weg mit einem macht — über Jahrzehnte, durch alles hindurch.
+            </p>
+            <p className="about-text reveal-fade">
+              自在 heisst: müheloser Freiraum durch Meisterschaft. Man kommt nie an. Nach vierundvierzig Jahren
+              fängt man immer noch an.
+            </p>
+            <p className="about-close reveal-fade">Forty-four years. Still beginning.</p>
+          </div>
+        </section>
+
         {/* WAITLIST */}
         <section className="waitlist" id="waitlist">
           <div className="waitlist-inner">
             <span className="waitlist-seal" aria-hidden="true">自在</span>
             <p className="section-label reveal-line">
-              <span>Drop 02 · 破 HA — bald</span>
+              <span>破 HA — bald bestellbar</span>
             </p>
             <h2 className="waitlist-title split-words">Sei da, bevor der Lärm beginnt.</h2>
             <WaitlistForm />

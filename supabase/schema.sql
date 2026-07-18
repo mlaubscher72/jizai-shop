@@ -91,15 +91,22 @@ alter table product_variants enable row level security;
 alter table orders enable row level security;
 alter table waitlist enable row level security;
 
--- Seed: Drop 01
+-- Seed: Drop 01 · 守破 SHU × HA
+-- Akt-Logik: kanji-Feld = Akt. 守 (SHU) = bestellbar, 破 (HA) = sichtbar, noch nicht bestellbar.
+-- Preise: TEE_CORE 79 / TEE_HERO 89 / HOODIE 139 (siehe src/lib/seed.ts)
 insert into products (id, slug, name, subtitle, kanji, accent, price_rappen, description, story, image, active) values
-  ('p_koi',  'koi',   'KOI',   'Circling',  '鯉', '#8C2F24', 7500, 'Zwei Koi, eine Bewegung. Rote Tusche auf Soft Stone.', 'Zwei Koi umkreisen einander in einer einzigen Geste — gezogen wie ein Atemzug, nie geschlossen.', '/assets/tee-koi.jpg', true),
-  ('p_tsuru','tsuru', 'TSURU', 'Rising',    '鶴', '#2E4E8F', 7500, 'Der Kranich im Aufstieg. Indigo auf Charcoal Ink.', 'Der Kranich steigt — ohne Eile, ohne Lärm. Indigo auf Charcoal Black, inspiriert von Aizome.', '/assets/tee-crane.jpg', true),
-  ('p_furin','furin', 'FŪRIN', 'Listening', '鈴', '#4E6B3A', 7500, 'Die Windglocke. Klang, bevor der Lärm beginnt.', 'Die Fūrin-Windglocke hängt still, bis der Wind sie findet.', '/assets/tee-bell.jpg', true),
-  ('p_take', 'take',  'TAKE',  'Bending',   '竹', '#5E7285', 7500, 'Bambus: biegsam, nie gebrochen. Stille Stärke.', 'Bambus biegt sich im Sturm und bricht nicht — die älteste Lektion des Budo.', '/assets/tee-bamboo.jpg', true)
+  ('p_core_tee',    'core-tee',    'JIZAI CORE TEE',    'Oversized Heavyweight Tee · 280 GSM', '守', '#9A958B', 7900,  'Der gebrochene Ensō. Kleine Frontmarke, maximaler Negativraum. Das leiseste Stück der Serie.', 'Der gebrochene Ensō. Kleine Frontmarke, maximaler Negativraum. Das leiseste Stück der Serie.', '/assets/tee-core.jpg', true),
+  ('p_form_tee',    'form-tee',    'JIZAI FORM TEE',    'Oversized Heavyweight Tee · 280 GSM', '守', '#C8B79A', 8900,  'Die gehaltene Form: Meditation im gebrochenen Ensō, Tusche auf Soft Stone. Energie, enthalten — nicht entladen.', 'Die gehaltene Form: Meditation im gebrochenen Ensō, Tusche auf Soft Stone. Energie, enthalten — nicht entladen.', '/assets/tee-form.jpg', true),
+  ('p_still_hoodie','still-hoodie','JIZAI STILL HOODIE','Heavyweight Hoodie · 450 GSM',        '守', '#8C2F24', 13900, 'Schwerer Hoodie, gebrochener Ensō als Backprint. Ruhe, die man trägt.', 'Schwerer Hoodie, gebrochener Ensō als Backprint. Ruhe, die man trägt.', '/assets/hoodie-still.jpg', true),
+  ('p_break_tee',   'break-tee',   'JIZAI BREAK TEE',   'Oversized Heavyweight Tee · 280 GSM', '破', '#2E4E8F', 8900,  'Zwei Koi, ein Kreis aus Bewegung — vom JIZAI Cut präzise durchtrennt. Form wird gebrochen, nicht zerstört. Indigo auf Soft Stone.', 'Zwei Koi, ein Kreis aus Bewegung — vom JIZAI Cut präzise durchtrennt. Form wird gebrochen, nicht zerstört. Indigo auf Soft Stone.', '/assets/tee-break.jpg', true),
+  ('p_motion_tee',  'motion-tee',  'JIZAI MOTION TEE',  'Oversized Heavyweight Tee · 280 GSM', '破', '#5E7285', 8900,  'Die Figur im Impuls: Tusche in Bewegung, der Strich als Kraft. Der Moment, in dem die Form aufbricht.', 'Die Figur im Impuls: Tusche in Bewegung, der Strich als Kraft. Der Moment, in dem die Form aufbricht.', '/assets/tee-motion.jpg', true),
+  ('p_break_hoodie','break-hoodie','JIZAI BREAK HOODIE','Heavyweight Hoodie · 450 GSM',        '破', '#8C2F24', 13900, 'Der durchtrennte Kreis als Backprint auf schwerem Stoff. Präzision statt Lärm.', 'Der durchtrennte Kreis als Backprint auf schwerem Stoff. Präzision statt Lärm.', '/assets/hoodie-break.jpg', true)
 on conflict (id) do nothing;
 
 insert into product_variants (product_id, size, stock)
-select p.id, s.size, case when s.size in ('M','L') then 30 else 20 end
+select p.id, s.size,
+  case when p.subtitle like '%Hoodie%'
+       then (case when s.size in ('M','L') then 15 else 10 end)
+       else (case when s.size in ('M','L') then 30 else 20 end) end
 from products p, (values ('S'),('M'),('L'),('XL')) as s(size)
 on conflict do nothing;

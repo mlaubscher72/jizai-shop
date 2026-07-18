@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { db } from "@/lib/db";
 import { sendOrderConfirmation } from "@/lib/mail";
+import { isOrderable } from "@/lib/seed";
 import { Order, OrderItem } from "@/lib/types";
 
 const SHIPPING_RAPPEN = 900;
@@ -47,6 +48,12 @@ export async function POST(req: Request) {
     const variant = product?.variants.find((v) => v.size === item.size);
     if (!product || !variant) {
       return NextResponse.json({ error: "Produkt nicht gefunden" }, { status: 400 });
+    }
+    if (!isOrderable(product)) {
+      return NextResponse.json(
+        { error: `${product.name} ist noch nicht bestellbar (Akt II — bald)` },
+        { status: 400 }
+      );
     }
     orderItems.push({
       productId: product.id,

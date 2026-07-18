@@ -8,9 +8,9 @@ export default function Footer() {
         <div>
           <p className="footer-label">Brand</p>
           <p>
-            Premium budo-rooted
+            Urban streetwear shaped by discipline,
             <br />
-            ritual streetwear.
+            movement and Japanese restraint.
           </p>
         </div>
         <div>
@@ -18,7 +18,7 @@ export default function Footer() {
           <p>
             Liestal, Schweiz
             <br />
-            Rösterei &amp; Atelier
+            Atelier
           </p>
         </div>
         <div>

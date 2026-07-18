@@ -46,7 +46,7 @@ export default function WaitlistForm() {
           <span className="wf-btn-kana">参加</span>
         </button>
       </div>
-      <p className="wf-note">Early Access · kein Spam · nur Drops &amp; Rituale</p>
+      <p className="wf-note">Early Access auf Akt II · kein Spam · nur Drops</p>
       <p className="wf-success">ようこそ — Du bist auf der Liste. Begin before the noise.</p>
     </form>
   );

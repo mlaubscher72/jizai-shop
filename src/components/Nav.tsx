@@ -27,6 +27,9 @@ export default function Nav() {
         <Link href={isHome ? "#shuhari" : "/#shuhari"} data-hover>
           守破離
         </Link>
+        <Link href={isHome ? "#about" : "/#about"} data-hover>
+          About
+        </Link>
         <button className="nav-cart" data-hover onClick={() => setOpen(true)} aria-label="Warenkorb öffnen">
           <span className="nav-cart-label">Cart</span>
           <span className="nav-cart-count">{count}</span>
