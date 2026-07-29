@@ -23,7 +23,7 @@ export default function AddToCart({ product }: { product: Product }) {
       slug: product.slug,
       name: product.name,
       kanji: product.kanji,
-      image: product.image,
+      image: product.images[0] ?? "",
       size,
       priceRappen: product.priceRappen,
     });

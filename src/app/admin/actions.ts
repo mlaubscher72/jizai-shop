@@ -13,7 +13,7 @@ import {
   setAdminCookie,
   verifyPassword,
 } from "@/lib/auth";
-import { AdminRole, OrderStatus, Size, SIZES } from "@/lib/types";
+import { Act, ACT_KANJI, AdminRole, OrderStatus, Product, Size, SIZES } from "@/lib/types";
 
 /* ---------- Login / Logout ---------- */
 
@@ -57,11 +57,31 @@ async function requireRole(min: AdminRole) {
 
 /* ---------- Produkte (ab Manager) ---------- */
 
+function parseAct(value: unknown): Act {
+  return value === "ha" || value === "ri" ? value : "shu";
+}
+
+function slugify(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/jizai/g, "")
+    .replace(/[äöüß]/g, (c) => ({ ä: "ae", ö: "oe", ü: "ue", ß: "ss" }[c] as string))
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || `produkt-${randomBytes(2).toString("hex")}`;
+}
+
+function revalidateShop() {
+  revalidatePath("/admin/products");
+  revalidatePath("/");
+}
+
 export async function updateProductAction(formData: FormData) {
   await requireRole("manager");
   const id = String(formData.get("id"));
   const priceFrancs = parseFloat(String(formData.get("price")).replace(",", "."));
   const active = formData.get("active") === "on";
+  const act = parseAct(formData.get("act"));
+  const description = String(formData.get("description") || "").trim();
 
   const variants = SIZES.map((size) => ({
     size: size as Size,
@@ -71,10 +91,83 @@ export async function updateProductAction(formData: FormData) {
   await db.updateProduct(id, {
     priceRappen: Number.isFinite(priceFrancs) ? Math.round(priceFrancs * 100) : undefined,
     active,
+    kanji: ACT_KANJI[act],
+    description: description || undefined,
+    story: description || undefined,
     variants,
   });
-  revalidatePath("/admin/products");
-  revalidatePath("/");
+  revalidateShop();
+}
+
+export async function createProductAction(formData: FormData) {
+  await requireRole("manager");
+  const name = String(formData.get("name") || "").trim();
+  if (!name) throw new Error("Name fehlt");
+  const act = parseAct(formData.get("act"));
+  const priceFrancs = parseFloat(String(formData.get("price") || "89").replace(",", "."));
+  const subtitle = String(formData.get("subtitle") || "").trim() || "Oversized Heavyweight Tee · 280 GSM";
+  const description = String(formData.get("description") || "").trim();
+  const active = formData.get("active") === "on";
+  const stock = Math.max(0, Math.floor(Number(formData.get("stock")) || 0));
+  const images = formData
+    .getAll("images")
+    .map((v) => String(v).trim())
+    .filter(Boolean);
+
+  const product: Product = {
+    id: `p_${randomBytes(4).toString("hex")}`,
+    slug: slugify(name),
+    name,
+    subtitle,
+    kanji: ACT_KANJI[act],
+    accent: act === "shu" ? "#9A958B" : act === "ha" ? "#8C2F24" : "#C8B79A",
+    priceRappen: Number.isFinite(priceFrancs) ? Math.round(priceFrancs * 100) : 8900,
+    description,
+    story: description,
+    images,
+    active,
+    variants: SIZES.map((size) => ({ size, stock })),
+  };
+  await db.createProduct(product);
+  revalidateShop();
+}
+
+export async function deleteProductAction(formData: FormData) {
+  await requireRole("manager");
+  const id = String(formData.get("id"));
+  await db.deleteProduct(id);
+  revalidateShop();
+}
+
+export async function addProductImageAction(formData: FormData) {
+  await requireRole("manager");
+  const id = String(formData.get("id"));
+  const url = String(formData.get("url") || "").trim();
+  if (!url) return;
+  const product = (await db.getProducts()).find((p) => p.id === id);
+  if (!product) throw new Error("Produkt nicht gefunden");
+  await db.updateProduct(id, { images: [...product.images, url] });
+  revalidateShop();
+}
+
+export async function removeProductImageAction(formData: FormData) {
+  await requireRole("manager");
+  const id = String(formData.get("id"));
+  const url = String(formData.get("url"));
+  const product = (await db.getProducts()).find((p) => p.id === id);
+  if (!product) return;
+  await db.updateProduct(id, { images: product.images.filter((i) => i !== url) });
+  revalidateShop();
+}
+
+export async function makePrimaryImageAction(formData: FormData) {
+  await requireRole("manager");
+  const id = String(formData.get("id"));
+  const url = String(formData.get("url"));
+  const product = (await db.getProducts()).find((p) => p.id === id);
+  if (!product || !product.images.includes(url)) return;
+  await db.updateProduct(id, { images: [url, ...product.images.filter((i) => i !== url)] });
+  revalidateShop();
 }
 
 /* ---------- Bestellungen (ab Manager) ---------- */

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { formatCHF, Product } from "@/lib/types";
+import { actOf, formatCHF, Product } from "@/lib/types";
 import { isOrderable } from "@/lib/seed";
 import HomeFx from "@/components/HomeFx";
 import WaitlistForm from "@/components/WaitlistForm";
@@ -15,9 +15,9 @@ function DropCard({ product }: { product: Product }) {
     <Link href={`/product/${product.slug}`} className="piece" data-accent={product.accent} data-hover>
       <div className="piece-media">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={product.image} alt={product.name} loading="lazy" />
+        <img src={product.images[0] ?? ""} alt={product.name} loading="lazy" />
         {ha ? (
-          <span className="piece-badge is-ha">破 BALD</span>
+          <span className="piece-badge is-ha">{product.kanji} BALD</span>
         ) : stock <= 0 ? (
           <span className="piece-badge is-out">Ausverkauft</span>
         ) : stock <= 15 ? (
@@ -40,8 +40,9 @@ function DropCard({ product }: { product: Product }) {
 
 export default async function Home() {
   const products = (await db.getProducts()).filter((p) => p.active);
-  const shu = products.filter((p) => isOrderable(p));
-  const ha = products.filter((p) => !isOrderable(p));
+  const shu = products.filter((p) => actOf(p) === "shu");
+  const ha = products.filter((p) => actOf(p) === "ha");
+  const ri = products.filter((p) => actOf(p) === "ri");
 
   return (
     <>
@@ -208,6 +209,19 @@ export default async function Home() {
               {ha.map((product) => (
                 <DropCard product={product} key={product.id} />
               ))}
+              {ri.length > 0 && (
+                <>
+                  <div className="act-panel is-ri">
+                    <span className="act-kanji">離</span>
+                    <h3>RI</h3>
+                    <p>Die Form transzendieren.</p>
+                    <span className="act-state">Der Horizont</span>
+                  </div>
+                  {ri.map((product) => (
+                    <DropCard product={product} key={product.id} />
+                  ))}
+                </>
+              )}
             </div>
           </div>
         </section>

@@ -30,6 +30,11 @@ async function load(): Promise<Store> {
   try {
     const raw = await fs.readFile(DATA_FILE, "utf8");
     memStore = JSON.parse(raw) as Store;
+    // Migration: älteres Format mit einzelnem image-Feld → images[]
+    for (const p of memStore.products as (Product & { image?: string })[]) {
+      if (!Array.isArray(p.images)) p.images = p.image ? [p.image] : [];
+      delete p.image;
+    }
   } catch {
     memStore = { products: structuredClone(SEED_PRODUCTS), orders: [], waitlist: [] };
     await save(memStore);
@@ -65,6 +70,21 @@ export const jsonDb = {
     const idx = store.products.findIndex((p) => p.id === id);
     if (idx === -1) throw new Error(`Produkt ${id} nicht gefunden`);
     store.products[idx] = { ...store.products[idx], ...patch, id };
+    await save(store);
+  },
+
+  async createProduct(product: Product): Promise<void> {
+    const store = await load();
+    if (store.products.some((p) => p.id === product.id || p.slug === product.slug)) {
+      throw new Error("Slug oder ID bereits vergeben");
+    }
+    store.products.push(product);
+    await save(store);
+  },
+
+  async deleteProduct(id: string): Promise<void> {
+    const store = await load();
+    store.products = store.products.filter((p) => p.id !== id);
     await save(store);
   },
 

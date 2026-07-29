@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { formatCHF } from "@/lib/types";
 import { isOrderable } from "@/lib/seed";
 import AddToCart from "@/components/AddToCart";
+import ProductGallery from "@/components/ProductGallery";
 import Footer from "@/components/Footer";
 
 export const dynamic = "force-dynamic";
@@ -33,12 +34,12 @@ export default async function ProductPage({
     <>
       <main className="product-page" style={{ "--accent": product.accent } as React.CSSProperties}>
         <div className="product-grid">
-          <div className="product-media">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={product.image} alt={product.name} />
-            <span className="product-kanji-wm" aria-hidden="true">{product.kanji}</span>
-            {!orderable && <span className="piece-badge is-ha product-ha-badge">破 BALD</span>}
-          </div>
+          <ProductGallery
+            images={product.images}
+            alt={product.name}
+            kanji={product.kanji}
+            badge={orderable ? undefined : `${product.kanji} BALD`}
+          />
 
           <div className="product-info">
             <Link href="/#drop" className="product-back" data-hover>

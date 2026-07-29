@@ -1,4 +1,4 @@
-import { Product } from "./types";
+import { actOf, Product } from "./types";
 
 /* Preise zentral in CHF — hier ändern, gilt für Seed & schema.sql */
 export const TEE_CORE = 79;
@@ -7,10 +7,11 @@ export const HOODIE = 139;
 
 const chf = (francs: number) => francs * 100;
 
+const STORAGE = "https://pkqnyeonuzittsqtworu.supabase.co/storage/v1/object/public/product-images";
+
 /**
- * Akt-Logik: Das kanji-Feld trägt den Akt des Produkts.
- * 守 (SHU)  → jetzt bestellbar
- * 破 (HA)   → sichtbar, noch nicht bestellbar ("Benachrichtigen")
+ * Akt-Logik: Das kanji-Feld trägt die Kategorie des Produkts.
+ * 守 SHU → jetzt bestellbar · 破 HA → sichtbar, noch nicht bestellbar · 離 RI → Der Horizont
  */
 export const SEED_PRODUCTS: Product[] = [
   /* ── Akt I · 守 SHU — jetzt bestellbar ─────────────────── */
@@ -24,7 +25,7 @@ export const SEED_PRODUCTS: Product[] = [
     priceRappen: chf(TEE_CORE),
     description: "Der gebrochene Ensō. Kleine Frontmarke, maximaler Negativraum. Das leiseste Stück der Serie.",
     story: "Der gebrochene Ensō. Kleine Frontmarke, maximaler Negativraum. Das leiseste Stück der Serie.",
-    image: "/assets/tee-core.jpg",
+    images: ["/assets/tee-core.jpg", `${STORAGE}/core-enso-back.jpg`],
     active: true,
     variants: [
       { size: "S", stock: 20 },
@@ -43,7 +44,7 @@ export const SEED_PRODUCTS: Product[] = [
     priceRappen: chf(TEE_HERO),
     description: "Die gehaltene Form: Meditation im gebrochenen Ensō, Tusche auf Soft Stone. Energie, enthalten — nicht entladen.",
     story: "Die gehaltene Form: Meditation im gebrochenen Ensō, Tusche auf Soft Stone. Energie, enthalten — nicht entladen.",
-    image: "/assets/tee-form.jpg",
+    images: [`${STORAGE}/form-samurai.jpg`],
     active: true,
     variants: [
       { size: "S", stock: 20 },
@@ -62,7 +63,7 @@ export const SEED_PRODUCTS: Product[] = [
     priceRappen: chf(HOODIE),
     description: "Schwerer Hoodie, gebrochener Ensō als Backprint. Ruhe, die man trägt.",
     story: "Schwerer Hoodie, gebrochener Ensō als Backprint. Ruhe, die man trägt.",
-    image: "/assets/hoodie-still.jpg",
+    images: ["/assets/hoodie-still.jpg"],
     active: true,
     variants: [
       { size: "S", stock: 10 },
@@ -83,7 +84,7 @@ export const SEED_PRODUCTS: Product[] = [
     priceRappen: chf(TEE_HERO),
     description: "Zwei Koi, ein Kreis aus Bewegung — vom JIZAI Cut präzise durchtrennt. Form wird gebrochen, nicht zerstört. Indigo auf Soft Stone.",
     story: "Zwei Koi, ein Kreis aus Bewegung — vom JIZAI Cut präzise durchtrennt. Form wird gebrochen, nicht zerstört. Indigo auf Soft Stone.",
-    image: "/assets/tee-break.jpg",
+    images: [`${STORAGE}/break-koi.jpg`],
     active: true,
     variants: [
       { size: "S", stock: 20 },
@@ -102,7 +103,7 @@ export const SEED_PRODUCTS: Product[] = [
     priceRappen: chf(TEE_HERO),
     description: "Die Figur im Impuls: Tusche in Bewegung, der Strich als Kraft. Der Moment, in dem die Form aufbricht.",
     story: "Die Figur im Impuls: Tusche in Bewegung, der Strich als Kraft. Der Moment, in dem die Form aufbricht.",
-    image: "/assets/tee-motion.jpg",
+    images: ["/assets/tee-motion.jpg"],
     active: true,
     variants: [
       { size: "S", stock: 20 },
@@ -121,7 +122,7 @@ export const SEED_PRODUCTS: Product[] = [
     priceRappen: chf(HOODIE),
     description: "Der durchtrennte Kreis als Backprint auf schwerem Stoff. Präzision statt Lärm.",
     story: "Der durchtrennte Kreis als Backprint auf schwerem Stoff. Präzision statt Lärm.",
-    image: "/assets/hoodie-break.jpg",
+    images: ["/assets/hoodie-break.jpg"],
     active: true,
     variants: [
       { size: "S", stock: 10 },
@@ -132,7 +133,7 @@ export const SEED_PRODUCTS: Product[] = [
   },
 ];
 
-/** 破-Produkte sind sichtbar, aber noch nicht bestellbar. */
+/** 守-Produkte sind bestellbar; 破/離 sichtbar, aber noch nicht bestellbar. */
 export function isOrderable(product: Pick<Product, "kanji">): boolean {
-  return product.kanji !== "破";
+  return actOf(product) === "shu";
 }

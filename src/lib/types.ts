@@ -17,9 +17,27 @@ export interface Product {
   priceRappen: number;
   description: string;
   story: string;
-  image: string;
+  /** Erstes Bild = Hauptbild (Karten, Warenkorb); weitere = Galerie. */
+  images: string[];
   active: boolean;
   variants: ProductVariant[];
+}
+
+/* ---- Kategorien (Akte) — gespeichert im kanji-Feld ---- */
+export type Act = "shu" | "ha" | "ri";
+
+export const ACT_KANJI: Record<Act, string> = { shu: "守", ha: "破", ri: "離" };
+
+export const ACT_LABEL: Record<Act, string> = {
+  shu: "守 SHU — jetzt bestellbar",
+  ha: "破 HA — bald",
+  ri: "離 RI — Der Horizont",
+};
+
+export function actOf(product: Pick<Product, "kanji">): Act {
+  if (product.kanji === "破") return "ha";
+  if (product.kanji === "離") return "ri";
+  return "shu";
 }
 
 export interface CartItem {

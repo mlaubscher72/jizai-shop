@@ -4,7 +4,7 @@
  * Schema: supabase/schema.sql
  */
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
-import { AdminUser, Order, Product, ProductVariant, WaitlistEntry } from "./types";
+import { AdminUser, Order, Product, ProductVariant, SIZES, WaitlistEntry } from "./types";
 
 let client: SupabaseClient | null = null;
 
@@ -34,6 +34,22 @@ interface ProductRow {
   product_variants: { size: string; stock: number }[];
 }
 
+/* Mehrere Bilder werden als JSON-Array im image-Textfeld gespeichert (kein DDL nötig). */
+function columnToImages(image: string | null): string[] {
+  if (!image) return [];
+  if (image.trim().startsWith("[")) {
+    try {
+      const arr = JSON.parse(image);
+      if (Array.isArray(arr)) return arr.filter((x) => typeof x === "string");
+    } catch {}
+  }
+  return [image];
+}
+
+function imagesToColumn(images: string[]): string {
+  return images.length === 1 ? images[0] : JSON.stringify(images);
+}
+
 function rowToProduct(row: ProductRow): Product {
   return {
     id: row.id,
@@ -45,12 +61,14 @@ function rowToProduct(row: ProductRow): Product {
     priceRappen: row.price_rappen,
     description: row.description,
     story: row.story,
-    image: row.image,
+    images: columnToImages(row.image),
     active: row.active,
-    variants: (row.product_variants ?? []).map((v) => ({
+    variants: ((row.product_variants ?? []).map((v) => ({
       size: v.size,
       stock: v.stock,
-    })) as ProductVariant[],
+    })) as ProductVariant[]).sort(
+      (a, b) => SIZES.indexOf(a.size) - SIZES.indexOf(b.size)
+    ),
   };
 }
 
@@ -81,6 +99,9 @@ export const supabaseDb = {
     if (patch.story !== undefined) row.story = patch.story;
     if (patch.priceRappen !== undefined) row.price_rappen = patch.priceRappen;
     if (patch.active !== undefined) row.active = patch.active;
+    if (patch.kanji !== undefined) row.kanji = patch.kanji;
+    if (patch.accent !== undefined) row.accent = patch.accent;
+    if (patch.images !== undefined) row.image = imagesToColumn(patch.images);
     if (Object.keys(row).length > 0) {
       const { error } = await sb().from("products").update(row).eq("id", id);
       if (error) throw error;
@@ -89,12 +110,42 @@ export const supabaseDb = {
       for (const v of patch.variants) {
         const { error } = await sb()
           .from("product_variants")
-          .update({ stock: v.stock })
-          .eq("product_id", id)
-          .eq("size", v.size);
+          .upsert(
+            { product_id: id, size: v.size, stock: v.stock },
+            { onConflict: "product_id,size" }
+          );
         if (error) throw error;
       }
     }
+  },
+
+  async createProduct(product: Product): Promise<void> {
+    const { error } = await sb().from("products").insert({
+      id: product.id,
+      slug: product.slug,
+      name: product.name,
+      subtitle: product.subtitle,
+      kanji: product.kanji,
+      accent: product.accent,
+      price_rappen: product.priceRappen,
+      description: product.description,
+      story: product.story,
+      image: imagesToColumn(product.images),
+      active: product.active,
+    });
+    if (error) {
+      if (error.code === "23505") throw new Error("Slug oder ID bereits vergeben");
+      throw error;
+    }
+    const { error: vErr } = await sb().from("product_variants").insert(
+      product.variants.map((v) => ({ product_id: product.id, size: v.size, stock: v.stock }))
+    );
+    if (vErr) throw vErr;
+  },
+
+  async deleteProduct(id: string): Promise<void> {
+    const { error } = await sb().from("products").delete().eq("id", id);
+    if (error) throw error;
   },
 
   async reserveStock(items: { productId: string; size: string; qty: number }[]): Promise<void> {
