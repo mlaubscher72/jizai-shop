@@ -91,9 +91,9 @@ export async function updateProductAction(formData: FormData) {
   await db.updateProduct(id, {
     priceRappen: Number.isFinite(priceFrancs) ? Math.round(priceFrancs * 100) : undefined,
     active,
+    orderable: formData.get("orderable") === "1",
     kanji: ACT_KANJI[act],
     description: description || undefined,
-    story: description || undefined,
     variants,
   });
   revalidateShop();
@@ -123,9 +123,9 @@ export async function createProductAction(formData: FormData) {
     accent: act === "shu" ? "#9A958B" : act === "ha" ? "#8C2F24" : "#C8B79A",
     priceRappen: Number.isFinite(priceFrancs) ? Math.round(priceFrancs * 100) : 8900,
     description,
-    story: description,
     images,
     active,
+    orderable: formData.get("orderable") === "1",
     variants: SIZES.map((size) => ({ size, stock })),
   };
   await db.createProduct(product);

@@ -5,9 +5,9 @@ import ImageUploader from "./ImageUploader";
 import { createProductAction } from "@/app/admin/actions";
 
 const ACTS = [
-  { value: "shu", label: "守 SHU — jetzt bestellbar" },
-  { value: "ha", label: "破 HA — bald (nicht bestellbar)" },
-  { value: "ri", label: "離 RI — Der Horizont (nicht bestellbar)" },
+  { value: "shu", label: "守 SHU" },
+  { value: "ha", label: "破 HA" },
+  { value: "ri", label: "離 RI" },
 ];
 
 export default function NewProductForm() {
@@ -47,6 +47,13 @@ export default function NewProductForm() {
               {ACTS.map((a) => (
                 <option key={a.value} value={a.value}>{a.label}</option>
               ))}
+            </select>
+          </label>
+          <label>
+            <span>Status</span>
+            <select name="orderable" defaultValue="1">
+              <option value="1">Bestellbar</option>
+              <option value="0">Bald verfügbar</option>
             </select>
           </label>
           <label>

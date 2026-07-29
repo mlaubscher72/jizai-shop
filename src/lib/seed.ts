@@ -21,10 +21,10 @@ export const SEED_PRODUCTS: Product[] = [
     name: "JIZAI CORE TEE",
     subtitle: "Oversized Heavyweight Tee · 280 GSM",
     kanji: "守",
+    orderable: true,
     accent: "#9A958B",
     priceRappen: chf(TEE_CORE),
     description: "Der gebrochene Ensō. Kleine Frontmarke, maximaler Negativraum. Das leiseste Stück der Serie.",
-    story: "Der gebrochene Ensō. Kleine Frontmarke, maximaler Negativraum. Das leiseste Stück der Serie.",
     images: ["/assets/tee-core.jpg", `${STORAGE}/core-enso-back.jpg`],
     active: true,
     variants: [
@@ -40,10 +40,10 @@ export const SEED_PRODUCTS: Product[] = [
     name: "JIZAI FORM TEE",
     subtitle: "Oversized Heavyweight Tee · 280 GSM",
     kanji: "守",
+    orderable: true,
     accent: "#C8B79A",
     priceRappen: chf(TEE_HERO),
     description: "Die gehaltene Form: Meditation im gebrochenen Ensō, Tusche auf Soft Stone. Energie, enthalten — nicht entladen.",
-    story: "Die gehaltene Form: Meditation im gebrochenen Ensō, Tusche auf Soft Stone. Energie, enthalten — nicht entladen.",
     images: [`${STORAGE}/form-samurai.jpg`],
     active: true,
     variants: [
@@ -59,10 +59,10 @@ export const SEED_PRODUCTS: Product[] = [
     name: "JIZAI STILL HOODIE",
     subtitle: "Heavyweight Hoodie · 450 GSM",
     kanji: "守",
+    orderable: true,
     accent: "#8C2F24",
     priceRappen: chf(HOODIE),
     description: "Schwerer Hoodie, gebrochener Ensō als Backprint. Ruhe, die man trägt.",
-    story: "Schwerer Hoodie, gebrochener Ensō als Backprint. Ruhe, die man trägt.",
     images: ["/assets/hoodie-still.jpg"],
     active: true,
     variants: [
@@ -80,10 +80,10 @@ export const SEED_PRODUCTS: Product[] = [
     name: "JIZAI BREAK TEE",
     subtitle: "Oversized Heavyweight Tee · 280 GSM",
     kanji: "破",
+    orderable: false,
     accent: "#2E4E8F",
     priceRappen: chf(TEE_HERO),
     description: "Zwei Koi, ein Kreis aus Bewegung — vom JIZAI Cut präzise durchtrennt. Form wird gebrochen, nicht zerstört. Indigo auf Soft Stone.",
-    story: "Zwei Koi, ein Kreis aus Bewegung — vom JIZAI Cut präzise durchtrennt. Form wird gebrochen, nicht zerstört. Indigo auf Soft Stone.",
     images: [`${STORAGE}/break-koi.jpg`],
     active: true,
     variants: [
@@ -99,10 +99,10 @@ export const SEED_PRODUCTS: Product[] = [
     name: "JIZAI MOTION TEE",
     subtitle: "Oversized Heavyweight Tee · 280 GSM",
     kanji: "破",
+    orderable: false,
     accent: "#5E7285",
     priceRappen: chf(TEE_HERO),
     description: "Die Figur im Impuls: Tusche in Bewegung, der Strich als Kraft. Der Moment, in dem die Form aufbricht.",
-    story: "Die Figur im Impuls: Tusche in Bewegung, der Strich als Kraft. Der Moment, in dem die Form aufbricht.",
     images: ["/assets/tee-motion.jpg"],
     active: true,
     variants: [
@@ -118,10 +118,10 @@ export const SEED_PRODUCTS: Product[] = [
     name: "JIZAI BREAK HOODIE",
     subtitle: "Heavyweight Hoodie · 450 GSM",
     kanji: "破",
+    orderable: false,
     accent: "#8C2F24",
     priceRappen: chf(HOODIE),
     description: "Der durchtrennte Kreis als Backprint auf schwerem Stoff. Präzision statt Lärm.",
-    story: "Der durchtrennte Kreis als Backprint auf schwerem Stoff. Präzision statt Lärm.",
     images: ["/assets/hoodie-break.jpg"],
     active: true,
     variants: [
@@ -133,7 +133,7 @@ export const SEED_PRODUCTS: Product[] = [
   },
 ];
 
-/** 守-Produkte sind bestellbar; 破/離 sichtbar, aber noch nicht bestellbar. */
-export function isOrderable(product: Pick<Product, "kanji">): boolean {
-  return actOf(product) === "shu";
+/** Bestellbar-Flag pro Produkt — unabhängig von der Kategorie. */
+export function isOrderable(product: Pick<Product, "orderable">): boolean {
+  return product.orderable;
 }

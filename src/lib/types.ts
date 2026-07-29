@@ -16,10 +16,11 @@ export interface Product {
   accent: string;
   priceRappen: number;
   description: string;
-  story: string;
   /** Erstes Bild = Hauptbild (Karten, Warenkorb); weitere = Galerie. */
   images: string[];
   active: boolean;
+  /** false = "Bald verfügbar": sichtbar, aber nicht kaufbar (Benachrichtigen-CTA). */
+  orderable: boolean;
   variants: ProductVariant[];
 }
 
@@ -29,9 +30,9 @@ export type Act = "shu" | "ha" | "ri";
 export const ACT_KANJI: Record<Act, string> = { shu: "守", ha: "破", ri: "離" };
 
 export const ACT_LABEL: Record<Act, string> = {
-  shu: "守 SHU — jetzt bestellbar",
-  ha: "破 HA — bald",
-  ri: "離 RI — Der Horizont",
+  shu: "守 SHU",
+  ha: "破 HA",
+  ri: "離 RI",
 };
 
 export function actOf(product: Pick<Product, "kanji">): Act {

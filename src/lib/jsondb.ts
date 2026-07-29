@@ -30,10 +30,12 @@ async function load(): Promise<Store> {
   try {
     const raw = await fs.readFile(DATA_FILE, "utf8");
     memStore = JSON.parse(raw) as Store;
-    // Migration: älteres Format mit einzelnem image-Feld → images[]
-    for (const p of memStore.products as (Product & { image?: string })[]) {
+    // Migration: älteres Format mit einzelnem image-Feld → images[]; story → orderable
+    for (const p of memStore.products as (Product & { image?: string; story?: string })[]) {
       if (!Array.isArray(p.images)) p.images = p.image ? [p.image] : [];
       delete p.image;
+      if (typeof p.orderable !== "boolean") p.orderable = p.kanji === "守";
+      delete p.story;
     }
   } catch {
     memStore = { products: structuredClone(SEED_PRODUCTS), orders: [], waitlist: [] };

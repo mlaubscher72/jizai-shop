@@ -8,9 +8,9 @@ import ProductImages from "@/components/admin/ProductImages";
 export const dynamic = "force-dynamic";
 
 const ACT_OPTIONS = [
-  { value: "shu", label: "守 SHU — bestellbar" },
-  { value: "ha", label: "破 HA — bald" },
-  { value: "ri", label: "離 RI — Horizont" },
+  { value: "shu", label: "守 SHU" },
+  { value: "ha", label: "破 HA" },
+  { value: "ri", label: "離 RI" },
 ];
 
 export default async function AdminProducts() {
@@ -65,6 +65,13 @@ export default async function AdminProducts() {
                         {ACT_OPTIONS.map((a) => (
                           <option key={a.value} value={a.value}>{a.label}</option>
                         ))}
+                      </select>
+                    </label>
+                    <label>
+                      <span>Status</span>
+                      <select name="orderable" defaultValue={p.orderable ? "1" : "0"}>
+                        <option value="1">Bestellbar</option>
+                        <option value="0">Bald verfügbar</option>
                       </select>
                     </label>
                     <label className="ap-price">

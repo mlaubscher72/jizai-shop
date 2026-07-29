@@ -51,7 +51,7 @@ export async function POST(req: Request) {
     }
     if (!isOrderable(product)) {
       return NextResponse.json(
-        { error: `${product.name} ist noch nicht bestellbar (Akt II — bald)` },
+        { error: `${product.name} ist noch nicht bestellbar (bald verfügbar)` },
         { status: 400 }
       );
     }

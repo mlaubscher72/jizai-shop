@@ -60,8 +60,9 @@ function rowToProduct(row: ProductRow): Product {
     accent: row.accent,
     priceRappen: row.price_rappen,
     description: row.description,
-    story: row.story,
     images: columnToImages(row.image),
+    // story-Spalte dient als Bestellbar-Flag ("1"/"0"); Alt-Daten: 守 = bestellbar
+    orderable: row.story === "1" ? true : row.story === "0" ? false : row.kanji === "守",
     active: row.active,
     variants: ((row.product_variants ?? []).map((v) => ({
       size: v.size,
@@ -96,7 +97,7 @@ export const supabaseDb = {
     if (patch.name !== undefined) row.name = patch.name;
     if (patch.subtitle !== undefined) row.subtitle = patch.subtitle;
     if (patch.description !== undefined) row.description = patch.description;
-    if (patch.story !== undefined) row.story = patch.story;
+    if (patch.orderable !== undefined) row.story = patch.orderable ? "1" : "0";
     if (patch.priceRappen !== undefined) row.price_rappen = patch.priceRappen;
     if (patch.active !== undefined) row.active = patch.active;
     if (patch.kanji !== undefined) row.kanji = patch.kanji;
@@ -129,7 +130,7 @@ export const supabaseDb = {
       accent: product.accent,
       price_rappen: product.priceRappen,
       description: product.description,
-      story: product.story,
+      story: product.orderable ? "1" : "0",
       image: imagesToColumn(product.images),
       active: product.active,
     });

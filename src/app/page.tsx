@@ -17,7 +17,7 @@ function DropCard({ product }: { product: Product }) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={product.images[0] ?? ""} alt={product.name} loading="lazy" />
         {ha ? (
-          <span className="piece-badge is-ha">{product.kanji} BALD</span>
+          <span className="piece-badge is-ha">{product.kanji} BALD VERFÜGBAR</span>
         ) : stock <= 0 ? (
           <span className="piece-badge is-out">Ausverkauft</span>
         ) : stock <= 15 ? (

@@ -38,7 +38,7 @@ export default async function ProductPage({
             images={product.images}
             alt={product.name}
             kanji={product.kanji}
-            badge={orderable ? undefined : `${product.kanji} BALD`}
+            badge={orderable ? undefined : `${product.kanji} BALD VERFÜGBAR`}
           />
 
           <div className="product-info">
@@ -56,7 +56,7 @@ export default async function ProductPage({
               <div className="product-notify">
                 <p className="product-notify-price">{formatCHF(product.priceRappen)}</p>
                 <p className="product-notify-note">
-                  Akt II — noch nicht bestellbar. Trag dich ein, wir sagen dir, wenn es losgeht.
+                  Bald verfügbar — noch nicht bestellbar. Trag dich ein, wir sagen dir, wenn es losgeht.
                 </p>
                 <Link href="/#waitlist" className="btn-seal atc-btn" data-hover>
                   Benachrichtigen <span className="btn-kana">参加</span>
