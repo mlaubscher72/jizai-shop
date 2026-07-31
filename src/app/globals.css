@@ -967,6 +967,28 @@ html.shot-mode { scroll-behavior: auto; }
 }
 .piece-media { position: relative; }
 
+/* ---- Japanische Zeichen: sichtbare Übersetzungen ---- */
+.jp-caption {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+.hero-content .jp-caption { margin-top: 10px; }
+.hero-content .jp-caption span { display: inline-block; }
+.nav-sub {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--ash);
+  margin-left: 2px;
+}
+.footer-seal-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.product-act { margin: 10px 0 4px; color: var(--sand); }
+
 /* ---- Drop: Akt-Panels & Intro ---- */
 .drop-intro {
   max-width: 460px;

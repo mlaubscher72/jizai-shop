@@ -67,7 +67,7 @@ function CheckoutInner() {
     <main className="checkout-page">
       <div className="checkout-grid">
         <section className="checkout-form-col">
-          <p className="section-label"><span>Checkout · 結</span></p>
+          <p className="section-label"><span>Checkout · 結 — verbinden</span></p>
           <h1>Fast geschafft.</h1>
           {cancelled && <p className="checkout-error">Zahlung abgebrochen — dein Warenkorb wartet noch.</p>}
 

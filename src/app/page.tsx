@@ -8,6 +8,12 @@ import Footer from "@/components/Footer";
 
 export const dynamic = "force-dynamic";
 
+const KANJI_MEANING: Record<string, string> = {
+  "守": "守 SHU — Die Form befolgen",
+  "破": "破 HA — Die Form brechen",
+  "離": "離 RI — Die Form transzendieren",
+};
+
 function DropCard({ product }: { product: Product }) {
   const ha = !isOrderable(product);
   const stock = product.variants.reduce((s, v) => s + v.stock, 0);
@@ -25,7 +31,7 @@ function DropCard({ product }: { product: Product }) {
         ) : null}
       </div>
       <div className="piece-info">
-        <span className="piece-kanji">{product.kanji}</span>
+        <span className="piece-kanji" title={KANJI_MEANING[product.kanji] ?? product.kanji}>{product.kanji}</span>
         <h3>
           {product.name} <em>{product.kanji}</em>
         </h3>
@@ -99,6 +105,9 @@ export default async function Home() {
               </p>
               <div className="hero-seal" aria-hidden="true">自在</div>
             </div>
+            <p className="jp-caption reveal-line">
+              <span>自在 jizai — im eigenen Sein</span>
+            </p>
           </div>
 
           <div className="hero-footer">

@@ -39,7 +39,10 @@ export default function Footer() {
       <div className="footer-bottom">
         <span>© 2026 JIZAI · ジザイ</span>
         <span className="footer-line-quote">First the form. Then the freedom.</span>
-        <span className="footer-seal">自在</span>
+        <span className="footer-seal-wrap">
+          <span className="footer-seal" title="自在 jizai — im eigenen Sein">自在</span>
+          <span className="jp-caption">im eigenen Sein</span>
+        </span>
       </div>
     </footer>
   );

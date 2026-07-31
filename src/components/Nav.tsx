@@ -25,7 +25,7 @@ export default function Nav() {
           Drop 01
         </Link>
         <Link href={isHome ? "#shuhari" : "/#shuhari"} data-hover>
-          守破離
+          守破離 <span className="nav-sub">Shu·Ha·Ri</span>
         </Link>
         <Link href={isHome ? "#about" : "/#about"} data-hover>
           About

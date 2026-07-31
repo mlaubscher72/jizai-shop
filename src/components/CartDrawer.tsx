@@ -17,7 +17,7 @@ export default function CartDrawer() {
       <aside className={`drawer${open ? " is-open" : ""}`} aria-label="Warenkorb">
         <div className="drawer-head">
           <h2>
-            Warenkorb <span className="drawer-kana">かご</span>
+            Warenkorb <span className="drawer-kana" title="かご — Korb">かご</span>
           </h2>
           <button className="drawer-close" data-hover onClick={() => setOpen(false)} aria-label="Schliessen">
             ×
@@ -26,7 +26,7 @@ export default function CartDrawer() {
 
         {items.length === 0 ? (
           <div className="drawer-empty">
-            <span className="drawer-empty-kanji">静</span>
+            <span className="drawer-empty-kanji" title="静 — Stille">静</span>
             <p>Noch still hier drin.</p>
             <Link href="/#drop" className="btn-ghost" data-hover onClick={() => setOpen(false)}>
               Drop 01 ansehen

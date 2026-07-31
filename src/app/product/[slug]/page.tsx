@@ -9,6 +9,12 @@ import Footer from "@/components/Footer";
 
 export const dynamic = "force-dynamic";
 
+const KANJI_MEANING: Record<string, string> = {
+  "守": "守 SHU — Die Form befolgen",
+  "破": "破 HA — Die Form brechen",
+  "離": "離 RI — Die Form transzendieren",
+};
+
 /* Alte Produkt-URLs: koi → BREAK TEE, Rest → Drop-Sektion */
 const LEGACY_ROUTES: Record<string, string> = {
   koi: "/product/break-tee",
@@ -48,6 +54,7 @@ export default async function ProductPage({
             <h1 className="product-title">
               {product.name} <em>{product.kanji}</em>
             </h1>
+            <p className="jp-caption product-act">{KANJI_MEANING[product.kanji] ?? ""}</p>
             <p className="product-desc">{product.description}</p>
 
             {orderable ? (

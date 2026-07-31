@@ -43,11 +43,11 @@ export default function WaitlistForm() {
         />
         <button type="submit" data-hover disabled={state === "busy"}>
           <span className="wf-btn-label">{state === "busy" ? "…" : "Join the ritual"}</span>
-          <span className="wf-btn-kana">参加</span>
+          <span className="wf-btn-kana" title="参加 — teilnehmen">参加</span>
         </button>
       </div>
       <p className="wf-note">Early Access auf Akt II · kein Spam · nur Drops</p>
-      <p className="wf-success">ようこそ — Du bist auf der Liste. Begin before the noise.</p>
+      <p className="wf-success">ようこそ — willkommen. Du bist auf der Liste. Begin before the noise.</p>
     </form>
   );
 }
