@@ -374,17 +374,17 @@ body.is-loaded .hero-seal { opacity: 1; transform: none; }
 .enso-brush {
   width: 100%; height: auto;
   display: block;
-  /* Indigo-Pinsel auf Ink: leicht aufhellen + Glow */
-  filter: brightness(1.55) saturate(1.1) drop-shadow(0 0 30px rgba(78, 118, 191, 0.25));
+  /* Roter Pinsel auf Ink: leicht aufhellen + Seal-Red-Glow */
+  filter: brightness(1.4) saturate(1.15) drop-shadow(0 0 30px rgba(176, 58, 43, 0.3));
   /* Zeichnet sich entlang des Strichs: Start am Ansatz (208°), im Uhrzeigersinn */
   -webkit-mask-image: conic-gradient(
-    from 186deg,
+    from 183deg,
     #000 0deg,
     #000 var(--enso-arc, 0deg),
     transparent calc(var(--enso-arc, 0deg) + 4deg)
   );
   mask-image: conic-gradient(
-    from 186deg,
+    from 183deg,
     #000 0deg,
     #000 var(--enso-arc, 0deg),
     transparent calc(var(--enso-arc, 0deg) + 4deg)

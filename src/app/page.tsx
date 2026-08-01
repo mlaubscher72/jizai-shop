@@ -135,7 +135,7 @@ export default async function Home() {
         <section className="manifesto" id="philosophy">
           <div className="manifesto-enso" aria-hidden="true">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/assets/enso-brush.png" alt="" className="enso-brush" id="ensoBrush" />
+            <img src="/assets/enso-red.png" alt="" className="enso-brush" id="ensoBrush" />
             <span className="enso-seal">自在</span>
           </div>
 

@@ -60,7 +60,7 @@ export default function HomeFx() {
     const ensoBrush = document.getElementById("ensoBrush");
     const ensoWrap = document.querySelector(".manifesto-enso");
     if (ensoBrush && ensoWrap) {
-      const FULL_ARC = 342; // Grad — lässt die Öffnung des Enso frei (mushin)
+      const FULL_ARC = 335; // Grad — lässt die Öffnung des Enso frei (mushin)
       if (reduceMotion || shotMode) {
         ensoBrush.style.setProperty("--enso-arc", `${FULL_ARC}deg`);
         ensoWrap.classList.add("enso-done");
