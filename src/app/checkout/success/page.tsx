@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
+import { reconcileOrderWithStripe } from "@/lib/stripe-sync";
 import { formatCHF } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -10,7 +11,9 @@ export default async function SuccessPage({
   searchParams: Promise<{ order?: string }>;
 }) {
   const { order: orderIdParam } = await searchParams;
-  const order = orderIdParam ? await db.getOrder(orderIdParam) : null;
+  const raw = orderIdParam ? await db.getOrder(orderIdParam) : null;
+  // Fällt der Webhook aus oder ist verzögert: direkt bei Stripe nachfragen
+  const order = raw ? await reconcileOrderWithStripe(raw) : null;
 
   return (
     <main className="success-page">

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { db } from "@/lib/db";
-import { sendOrderConfirmation } from "@/lib/mail";
+import { markOrderPaid } from "@/lib/stripe-sync";
 
 /**
  * Stripe-Webhook: markiert Bestellungen nach erfolgreicher Zahlung als "paid".
@@ -27,13 +27,17 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Ungültige Signatur" }, { status: 400 });
   }
 
-  if (event.type === "checkout.session.completed") {
+  // "completed" deckt Karte/TWINT ab, "async_payment_succeeded" verzögerte Methoden.
+  // markOrderPaid ist idempotent — doppelte Zustellungen lösen keine zweite Mail aus.
+  if (
+    event.type === "checkout.session.completed" ||
+    event.type === "checkout.session.async_payment_succeeded"
+  ) {
     const session = event.data.object as Stripe.Checkout.Session;
     const orderId = session.metadata?.orderId;
-    if (orderId) {
-      await db.updateOrderStatus(orderId, "paid");
+    if (orderId && session.payment_status === "paid") {
       const order = await db.getOrder(orderId);
-      if (order) await sendOrderConfirmation({ ...order, status: "paid" });
+      if (order) await markOrderPaid(order);
     }
   }
 

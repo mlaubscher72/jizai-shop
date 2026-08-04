@@ -101,6 +101,9 @@ export async function POST(req: Request) {
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || new URL(req.url).origin;
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
+        locale: "de",
+        // Läuft die Session ab, gibt der Webhook den reservierten Bestand wieder frei
+        expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
         customer_email: order.email,
         line_items: [
           ...orderItems.map((i) => ({
