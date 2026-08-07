@@ -1,11 +1,12 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { randomBytes } from "crypto";
 import { db } from "@/lib/db";
 import {
-  adminPassword,
+  verifyRootPassword,
   clearAdminCookie,
   getSession,
   hashPassword,
@@ -14,6 +15,7 @@ import {
   verifyPassword,
 } from "@/lib/auth";
 import { Act, ACT_KANJI, AdminRole, OrderStatus, Product, Size, SIZES } from "@/lib/types";
+import { checkLocked, loginDelay, recordFailure, recordSuccess } from "@/lib/rate-limit";
 
 /* ---------- Login / Logout ---------- */
 
@@ -21,21 +23,37 @@ export async function loginAction(formData: FormData) {
   const email = String(formData.get("email") || "").trim();
   const password = String(formData.get("password") || "");
 
+  // Sperre pro IP + Kennung: bremst automatisiertes Durchprobieren aus
+  const hdrs = await headers();
+  const ip =
+    hdrs.get("x-forwarded-for")?.split(",")[0].trim() || hdrs.get("x-real-ip") || "unknown";
+  const key = `${ip}|${email.toLowerCase() || "root"}`;
+
+  const lockedFor = checkLocked(key);
+  if (lockedFor > 0) {
+    redirect(`/admin/login?locked=${lockedFor}`);
+  }
+
+  await loginDelay();
+
   // 1) Benutzer aus der Datenbank
   if (email) {
     const user = await db.getUserByEmail(email);
     if (user && verifyPassword(password, user.passwordHash)) {
+      recordSuccess(key);
       await setAdminCookie({ email: user.email, name: user.name, role: user.role });
       redirect("/admin");
     }
   }
 
-  // 2) Root-Fallback: ADMIN_PASSWORD aus der Umgebung (E-Mail-Feld darf leer sein)
-  if (!email && password === adminPassword()) {
+  // 2) Root-Login (E-Mail-Feld leer) — abschaltbar via ADMIN_ROOT_LOGIN=off
+  if (!email && verifyRootPassword(password)) {
+    recordSuccess(key);
     await setAdminCookie({ email: "root", name: "Root", role: "admin" });
     redirect("/admin");
   }
 
+  recordFailure(key);
   redirect("/admin/login?error=1");
 }
 

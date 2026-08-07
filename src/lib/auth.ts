@@ -18,13 +18,56 @@ export function roleAtLeast(role: AdminRole, min: AdminRole): boolean {
   return ROLE_RANK[role] >= ROLE_RANK[min];
 }
 
+const isProd = process.env.NODE_ENV === "production";
+
+/**
+ * Signaturschlüssel der Session. In Produktion gibt es KEINEN Standardwert:
+ * Mit einem bekannten Schlüssel liesse sich ein Admin-Cookie fälschen —
+ * also lieber hart scheitern als still unsicher laufen.
+ */
 function secret(): string {
-  return process.env.ADMIN_SESSION_SECRET || "jizai-dev-secret-change-me";
+  const s = process.env.ADMIN_SESSION_SECRET;
+  if (s && s.length >= 16) return s;
+  if (isProd) {
+    throw new Error(
+      "ADMIN_SESSION_SECRET fehlt oder ist zu kurz (min. 16 Zeichen). Admin-Login ist deaktiviert."
+    );
+  }
+  return "jizai-dev-secret-only-for-local-development";
 }
 
-/** Root-Fallback: Login mit dem ADMIN_PASSWORD aus der Umgebung (immer Rolle admin). */
-export function adminPassword(): string {
-  return process.env.ADMIN_PASSWORD || "jizai2026";
+/**
+ * Root-Login (E-Mail-Feld leer). Bevorzugt ADMIN_PASSWORD_HASH (scrypt) —
+ * dann liegt in der Umgebung kein direkt verwendbares Passwort mehr.
+ * ADMIN_PASSWORD im Klartext wird weiter unterstützt, ist aber die schwächere Variante.
+ * Mit ADMIN_ROOT_LOGIN=off lässt sich der Zugang ganz abschalten.
+ */
+export function rootLoginEnabled(): boolean {
+  if (process.env.ADMIN_ROOT_LOGIN === "off") return false;
+  return Boolean(process.env.ADMIN_PASSWORD_HASH || process.env.ADMIN_PASSWORD || !isProd);
+}
+
+export function verifyRootPassword(password: string): boolean {
+  if (!rootLoginEnabled() || !password) return false;
+
+  const hash = process.env.ADMIN_PASSWORD_HASH;
+  if (hash) return verifyPassword(password, hash);
+
+  const plain = process.env.ADMIN_PASSWORD;
+  if (plain) {
+    // Konstantzeit-Vergleich, damit die Antwortdauer nichts über das Passwort verrät
+    const a = Buffer.from(password);
+    const b = Buffer.from(plain);
+    if (a.length !== b.length) return false;
+    try {
+      return timingSafeEqual(a, b);
+    } catch {
+      return false;
+    }
+  }
+
+  // Nur lokal ohne jede Konfiguration nutzbar — in Produktion nie erreichbar
+  return !isProd && password === "jizai-local-dev";
 }
 
 /* ---------- Passwort-Hashing (scrypt, ohne externe Dependency) ---------- */
@@ -87,6 +130,8 @@ export async function setAdminCookie(session: Omit<AdminSession, "exp">): Promis
   const store = await cookies();
   store.set(COOKIE, createSessionToken(session), {
     httpOnly: true,
+    // Nur über HTTPS senden — verhindert Mitlesen des Cookies im Klartext
+    secure: isProd,
     sameSite: "lax",
     path: "/",
     maxAge: SESSION_HOURS * 3600,

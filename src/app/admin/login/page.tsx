@@ -7,10 +7,11 @@ export const dynamic = "force-dynamic";
 export default async function AdminLogin({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; locked?: string }>;
 }) {
   if (await isAdmin()) redirect("/admin");
-  const { error } = await searchParams;
+  const { error, locked } = await searchParams;
+  const lockedSeconds = Number(locked) || 0;
 
   return (
     <main className="admin-login">
@@ -29,6 +30,11 @@ export default async function AdminLogin({
           <input type="password" name="password" required placeholder="••••••••" autoComplete="current-password" />
         </label>
         {error && <p className="checkout-error">Login fehlgeschlagen — E-Mail oder Passwort prüfen.</p>}
+        {lockedSeconds > 0 && (
+          <p className="checkout-error">
+            Zu viele Fehlversuche. Bitte {Math.ceil(lockedSeconds / 60)} Min warten.
+          </p>
+        )}
         <button type="submit" className="btn-seal" data-hover>
           Anmelden
         </button>
