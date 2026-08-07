@@ -10,7 +10,8 @@ npm run dev -- --port 3005
 ```
 
 - **Shop:** http://localhost:3005
-- **Admin:** http://localhost:3005/admin — Passwort: `jizai2026`
+- **Admin:** http://localhost:3005/admin — lokal ohne Konfiguration: E-Mail leer lassen,
+  Passwort `jizai-local-dev`. In Produktion gibt es keinen Standardzugang (siehe `.env.example`).
 
 Ohne Konfiguration läuft alles im **Demo-Modus**: Daten liegen in `data/store.json`
 (wird beim ersten Start automatisch mit Drop 01 befüllt), der Checkout simuliert die Zahlung.
