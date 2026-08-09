@@ -1,13 +1,16 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { randomBytes } from "crypto";
 import { db } from "@/lib/db";
 import {
   verifyRootPassword,
   clearAdminCookie,
+  clearPendingTotp,
+  getPendingTotp,
+  setPendingTotp,
   getSession,
   hashPassword,
   roleAtLeast,
@@ -16,6 +19,7 @@ import {
 } from "@/lib/auth";
 import { Act, ACT_KANJI, AdminRole, OrderStatus, Product, Size, SIZES } from "@/lib/types";
 import { checkLocked, loginDelay, recordFailure, recordSuccess } from "@/lib/rate-limit";
+import { generateSecret, verifyTotp } from "@/lib/totp";
 
 /* ---------- Login / Logout ---------- */
 
@@ -41,6 +45,11 @@ export async function loginAction(formData: FormData) {
     const user = await db.getUserByEmail(email);
     if (user && verifyPassword(password, user.passwordHash)) {
       recordSuccess(key);
+      // 2FA aktiv? Dann erst der zweite Schritt — Passwort allein reicht nicht.
+      if (user.totpSecret) {
+        await setPendingTotp(user.email);
+        redirect("/admin/login?step=2");
+      }
       await setAdminCookie({ email: user.email, name: user.name, role: user.role });
       redirect("/admin");
     }
@@ -57,9 +66,93 @@ export async function loginAction(formData: FormData) {
   redirect("/admin/login?error=1");
 }
 
+/** Zweiter Login-Schritt: 6-stelliger Code aus der Authenticator-App. */
+export async function verifyTotpAction(formData: FormData) {
+  const code = String(formData.get("code") || "");
+  const email = await getPendingTotp();
+  if (!email) redirect("/admin/login?error=1");
+
+  const hdrs = await headers();
+  const ip =
+    hdrs.get("x-forwarded-for")?.split(",")[0].trim() || hdrs.get("x-real-ip") || "unknown";
+  const key = `${ip}|2fa|${email.toLowerCase()}`;
+
+  const lockedFor = checkLocked(key);
+  if (lockedFor > 0) redirect(`/admin/login?step=2&locked=${lockedFor}`);
+
+  await loginDelay();
+
+  const user = await db.getUserByEmail(email);
+  if (user?.totpSecret && verifyTotp(user.totpSecret, code)) {
+    recordSuccess(key);
+    await clearPendingTotp();
+    await setAdminCookie({ email: user.email, name: user.name, role: user.role });
+    redirect("/admin");
+  }
+
+  recordFailure(key);
+  redirect("/admin/login?step=2&error=1");
+}
+
 export async function logoutAction() {
   await clearAdminCookie();
   redirect("/admin/login");
+}
+
+/* ---------- 2FA verwalten (eigener Account) ---------- */
+
+/** Erzeugt ein neues Secret und legt es in den Zwischenschritt-Cookie, bis es bestätigt ist. */
+export async function startTotpSetupAction() {
+  const session = await getSession();
+  if (!session || session.email === "root") redirect("/admin/security");
+  const secret = generateSecret();
+  const store = await cookies();
+  store.set("jizai_totp_setup", secret, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 15 * 60,
+  });
+  redirect("/admin/security");
+}
+
+export async function confirmTotpAction(formData: FormData) {
+  const session = await getSession();
+  if (!session || session.email === "root") redirect("/admin/security");
+  const code = String(formData.get("code") || "");
+  const store = await cookies();
+  const secret = store.get("jizai_totp_setup")?.value;
+  if (!secret) redirect("/admin/security?error=nosetup");
+
+  if (!verifyTotp(secret, code)) redirect("/admin/security?error=code");
+
+  const user = await db.getUserByEmail(session.email);
+  if (!user) redirect("/admin/security?error=nouser");
+  try {
+    await db.updateUser(user.id, { totpSecret: secret });
+  } catch (e) {
+    // Häufigster Fall: die Spalte totp_secret fehlt noch (Migration nicht gelaufen)
+    console.error("[2fa] Speichern fehlgeschlagen:", e);
+    redirect("/admin/security?error=migration");
+  }
+  store.delete("jizai_totp_setup");
+  revalidatePath("/admin/security");
+  redirect("/admin/security?ok=1");
+}
+
+export async function disableTotpAction(formData: FormData) {
+  const session = await getSession();
+  if (!session || session.email === "root") redirect("/admin/security");
+  // Zum Abschalten wird ein gültiger Code verlangt — sonst genügt ein
+  // übernommenes Cookie, um den Schutz wieder zu entfernen.
+  const code = String(formData.get("code") || "");
+  const user = await db.getUserByEmail(session.email);
+  if (!user?.totpSecret) redirect("/admin/security");
+  if (!verifyTotp(user.totpSecret, code)) redirect("/admin/security?error=code");
+  await db.updateUser(user.id, { totpSecret: "" });
+  revalidatePath("/admin/security");
+  redirect("/admin/security?off=1");
 }
 
 /* ---------- Berechtigungen ---------- */

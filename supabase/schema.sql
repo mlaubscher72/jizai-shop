@@ -48,6 +48,7 @@ create table if not exists admin_users (
   name text not null default '',
   role text not null default 'viewer' check (role in ('admin','manager','viewer')),
   password_hash text not null,
+  totp_secret text,
   created_at timestamptz not null default now()
 );
 alter table admin_users enable row level security;

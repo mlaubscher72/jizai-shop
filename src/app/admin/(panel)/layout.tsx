@@ -25,6 +25,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <Link href="/admin/products" data-hover>Produkte</Link>
           <Link href="/admin/orders" data-hover>Bestellungen</Link>
           <Link href="/admin/waitlist" data-hover>Waitlist</Link>
+          <Link href="/admin/security" data-hover>Sicherheit</Link>
           {roleAtLeast(session.role, "admin") && (
             <Link href="/admin/users" data-hover>Benutzer</Link>
           )}

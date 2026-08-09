@@ -266,6 +266,7 @@ export const supabaseDb = {
     if (patch.name !== undefined) row.name = patch.name;
     if (patch.role !== undefined) row.role = patch.role;
     if (patch.passwordHash !== undefined) row.password_hash = patch.passwordHash;
+    if (patch.totpSecret !== undefined) row.totp_secret = patch.totpSecret || null;
     const { error } = await sb().from("admin_users").update(row).eq("id", id);
     if (error) throw error;
   },
@@ -282,6 +283,7 @@ interface UserRow {
   name: string;
   role: AdminUser["role"];
   password_hash: string;
+  totp_secret?: string | null;
   created_at: string;
 }
 
@@ -292,6 +294,7 @@ function rowToUser(r: UserRow): AdminUser {
     name: r.name,
     role: r.role,
     passwordHash: r.password_hash,
+    totpSecret: r.totp_secret ?? undefined,
     createdAt: r.created_at,
   };
 }

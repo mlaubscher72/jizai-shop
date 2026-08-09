@@ -141,4 +141,49 @@ export async function setAdminCookie(session: Omit<AdminSession, "exp">): Promis
 export async function clearAdminCookie(): Promise<void> {
   const store = await cookies();
   store.delete(COOKIE);
+  store.delete(PENDING_COOKIE);
+}
+
+/* ---------- Zwischenschritt für 2FA ---------- */
+
+const PENDING_COOKIE = "jizai_2fa";
+const PENDING_MINUTES = 5;
+
+/**
+ * Nach korrektem Passwort, aber vor dem 2FA-Code: kurzlebiger, signierter
+ * Marker. Er allein gibt keinen Zugriff — nur die Berechtigung, den Code
+ * einzugeben.
+ */
+export async function setPendingTotp(email: string): Promise<void> {
+  const payload = Buffer.from(
+    JSON.stringify({ email, exp: Date.now() + PENDING_MINUTES * 60_000 })
+  ).toString("base64url");
+  const store = await cookies();
+  store.set(PENDING_COOKIE, `${payload}.${sign(payload)}`, {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: "lax",
+    path: "/",
+    maxAge: PENDING_MINUTES * 60,
+  });
+}
+
+export async function getPendingTotp(): Promise<string | null> {
+  const store = await cookies();
+  const token = store.get(PENDING_COOKIE)?.value;
+  if (!token) return null;
+  const [payload, sig] = token.split(".");
+  if (!payload || !sig) return null;
+  try {
+    if (!timingSafeEqual(Buffer.from(sig), Buffer.from(sign(payload)))) return null;
+    const data = JSON.parse(Buffer.from(payload, "base64url").toString());
+    return data.exp > Date.now() ? (data.email as string) : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function clearPendingTotp(): Promise<void> {
+  const store = await cookies();
+  store.delete(PENDING_COOKIE);
 }

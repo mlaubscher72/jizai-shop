@@ -98,6 +98,8 @@ export interface AdminUser {
   role: AdminRole;
   /** Format: scrypt$<salt-hex>$<hash-hex> */
   passwordHash: string;
+  /** Base32-Secret für 2FA. Leer/undefiniert = 2FA nicht aktiv. */
+  totpSecret?: string;
   createdAt: string;
 }
 
