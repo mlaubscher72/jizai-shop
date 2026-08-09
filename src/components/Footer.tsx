@@ -35,6 +35,14 @@ export default function Footer() {
             <a href="mailto:hello@jizai.ch" data-hover>hello@jizai.ch</a>
           </p>
         </div>
+        <div>
+          <p className="footer-label">Bestellung</p>
+          <p>
+            <a href="/bestellung" data-hover>Bestellung verfolgen</a>
+            <br />
+            <a href="/admin" className="footer-admin" data-hover>Admin</a>
+          </p>
+        </div>
       </div>
       <div className="footer-bottom">
         <span>© 2026 JIZAI · ジザイ</span>

@@ -52,6 +52,7 @@ async function sendMail(to: string, subject: string, html: string): Promise<Mail
 /* ---------- Bestellbestätigung ---------- */
 
 export function renderOrderEmail(order: Order): string {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://jizai-shop.vercel.app";
   const rows = order.items
     .map(
       (i) => `
@@ -103,6 +104,12 @@ export function renderOrderEmail(order: Order): string {
       </table>
 
       <div style="margin-top:22px;padding-top:18px;border-top:1px solid #ddd5c4;">
+        <div style="font-size:11px;letter-spacing:2px;color:#8C2F24;padding-bottom:6px;">BESTELLUNG VERFOLGEN</div>
+        <p style="font-size:13px;color:#6b665c;line-height:1.6;margin:0 0 18px;">
+          Status ansehen oder erneut bestellen — mit dieser E-Mail und der Nummer
+          <strong style="color:#242424;">${order.id}</strong>:<br>
+          <a href="${baseUrl}/bestellung" style="color:#8C2F24;">${baseUrl.replace(/^https?:\/\//, "")}/bestellung</a>
+        </p>
         <div style="font-size:11px;letter-spacing:2px;color:#8C2F24;padding-bottom:6px;">LIEFERADRESSE</div>
         <p style="font-size:14px;color:#242424;line-height:1.6;margin:0;">
           ${escapeHtml(order.name)}<br>

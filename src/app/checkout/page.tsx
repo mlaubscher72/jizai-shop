@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/components/CartContext";
@@ -20,6 +20,25 @@ function CheckoutInner() {
 
   const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
+
+  /* Kommt der Kunde über "Nochmals bestellen", ist die Adresse schon bekannt */
+  const [prefilled, setPrefilled] = useState(false);
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem("jizai_prefill");
+      if (!raw) return;
+      const a = JSON.parse(raw);
+      setForm((f) => ({
+        email: a.email ?? f.email,
+        name: a.name ?? f.name,
+        street: a.street ?? f.street,
+        zip: a.zip ?? f.zip,
+        city: a.city ?? f.city,
+      }));
+      setPrefilled(true);
+      sessionStorage.removeItem("jizai_prefill");
+    } catch {}
+  }, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -70,6 +89,11 @@ function CheckoutInner() {
           <p className="section-label"><span>Checkout · 結 — verbinden</span></p>
           <h1>Fast geschafft.</h1>
           {cancelled && <p className="checkout-error">Zahlung abgebrochen — dein Warenkorb wartet noch.</p>}
+          {prefilled && (
+            <p className="checkout-prefill">
+              Adresse aus deiner letzten Bestellung übernommen — du kannst sie ändern.
+            </p>
+          )}
 
           <form onSubmit={submit} className="checkout-form">
             <label>
