@@ -228,6 +228,26 @@ export const supabaseDb = {
     return (data ?? []).map((r) => ({ email: r.email, createdAt: r.created_at }));
   },
 
+  /* ---------- Einstellungen ---------- */
+
+  async getSetting(key: string): Promise<string | null> {
+    const { data, error } = await sb()
+      .from("settings")
+      .select("value")
+      .eq("key", key)
+      .maybeSingle();
+    // Fehlt die Tabelle noch (Migration nicht gelaufen), gilt der Standardwert
+    if (error) return null;
+    return data?.value ?? null;
+  },
+
+  async setSetting(key: string, value: string): Promise<void> {
+    const { error } = await sb()
+      .from("settings")
+      .upsert({ key, value }, { onConflict: "key" });
+    if (error) throw error;
+  },
+
   /* ---------- Admin-Benutzer ---------- */
 
   async getUsers(): Promise<AdminUser[]> {

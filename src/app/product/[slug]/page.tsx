@@ -6,6 +6,8 @@ import { isOrderable } from "@/lib/seed";
 import AddToCart from "@/components/AddToCart";
 import ProductGallery from "@/components/ProductGallery";
 import Footer from "@/components/Footer";
+import { isComingSoon } from "@/lib/settings";
+import { getSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +32,11 @@ export default async function ProductPage({
 }) {
   const { slug } = await params;
   if (LEGACY_ROUTES[slug]) redirect(LEGACY_ROUTES[slug]);
+
+  if (await isComingSoon()) {
+    const session = await getSession();
+    if (!session) redirect("/");
+  }
 
   const product = await db.getProductBySlug(slug);
   if (!product || !product.active) notFound();

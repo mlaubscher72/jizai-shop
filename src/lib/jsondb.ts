@@ -13,6 +13,7 @@ interface Store {
   orders: Order[];
   waitlist: WaitlistEntry[];
   users?: AdminUser[];
+  settings?: Record<string, string>;
 }
 
 const DATA_DIR = path.join(process.cwd(), "data");
@@ -153,6 +154,18 @@ export const jsonDb = {
 
   async getWaitlist(): Promise<WaitlistEntry[]> {
     return (await load()).waitlist;
+  },
+
+  /* ---------- Einstellungen ---------- */
+
+  async getSetting(key: string): Promise<string | null> {
+    return (await load()).settings?.[key] ?? null;
+  },
+
+  async setSetting(key: string, value: string): Promise<void> {
+    const store = await load();
+    store.settings = { ...(store.settings ?? {}), [key]: value };
+    await save(store);
   },
 
   /* ---------- Admin-Benutzer ---------- */

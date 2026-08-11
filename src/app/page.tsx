@@ -3,8 +3,11 @@ import { db } from "@/lib/db";
 import { actOf, formatCHF, Product } from "@/lib/types";
 import { isOrderable } from "@/lib/seed";
 import HomeFx from "@/components/HomeFx";
+import ComingSoon from "@/components/ComingSoon";
 import WaitlistForm from "@/components/WaitlistForm";
 import Footer from "@/components/Footer";
+import { isComingSoon } from "@/lib/settings";
+import { getSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -44,8 +47,21 @@ function DropCard({ product }: { product: Product }) {
   );
 }
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ vorschau?: string }>;
+}) {
   const products = (await db.getProducts()).filter((p) => p.active);
+  const { vorschau } = await searchParams;
+
+  // Coming-Soon-Modus: Besucher sehen die Teaser-Seite, Angemeldete den echten Shop.
+  // ?vorschau=coming-soon zeigt sie auch Angemeldeten (Kontrolle vor dem Aktivieren).
+  if (vorschau === "coming-soon") return <ComingSoon products={products} />;
+  if (await isComingSoon()) {
+    const session = await getSession();
+    if (!session) return <ComingSoon products={products} />;
+  }
   const shu = products.filter((p) => actOf(p) === "shu");
   const ha = products.filter((p) => actOf(p) === "ha");
   const ri = products.filter((p) => actOf(p) === "ri");

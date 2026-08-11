@@ -42,6 +42,12 @@ create table if not exists waitlist (
   created_at timestamptz not null default now()
 );
 
+create table if not exists settings (
+  key text primary key,
+  value text not null
+);
+alter table settings enable row level security;
+
 create table if not exists admin_users (
   id text primary key,
   email text unique not null,

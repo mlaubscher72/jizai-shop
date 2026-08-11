@@ -20,6 +20,7 @@ import {
 import { Act, ACT_KANJI, AdminRole, OrderStatus, Product, Size, SIZES } from "@/lib/types";
 import { checkLocked, loginDelay, recordFailure, recordSuccess } from "@/lib/rate-limit";
 import { generateSecret, verifyTotp } from "@/lib/totp";
+import { setComingSoon } from "@/lib/settings";
 
 /* ---------- Login / Logout ---------- */
 
@@ -279,6 +280,22 @@ export async function makePrimaryImageAction(formData: FormData) {
   if (!product || !product.images.includes(url)) return;
   await db.updateProduct(id, { images: [url, ...product.images.filter((i) => i !== url)] });
   revalidateShop();
+}
+
+/* ---------- Website-Einstellungen (ab Manager) ---------- */
+
+export async function setComingSoonAction(formData: FormData) {
+  await requireRole("manager");
+  const active = String(formData.get("active")) === "1";
+  try {
+    await setComingSoon(active);
+  } catch (e) {
+    console.error("[settings] Speichern fehlgeschlagen:", e);
+    redirect("/admin/website?error=migration");
+  }
+  revalidatePath("/admin/website");
+  revalidatePath("/");
+  redirect("/admin/website?ok=1");
 }
 
 /* ---------- Bestellungen (ab Manager) ---------- */
