@@ -93,8 +93,18 @@ export default async function AdminProducts() {
                   </div>
 
                   <label className="ap-desc">
-                    <span>Beschreibung</span>
+                    <span>Beschreibung (Deutsch)</span>
                     <textarea name="description" rows={2} defaultValue={p.description} />
+                  </label>
+
+                  <label className="ap-desc">
+                    <span>Beschreibung (English)</span>
+                    <textarea
+                      name="description_en"
+                      rows={2}
+                      defaultValue={p.descriptionEn ?? ""}
+                      placeholder="Leer lassen = englische Seite zeigt den deutschen Text"
+                    />
                   </label>
 
                   <div className="ap-foot">

@@ -10,6 +10,7 @@ create table if not exists products (
   accent text not null default '#8C2F24',
   price_rappen integer not null,
   description text not null default '',
+  description_en text,
   story text not null default '',
   image text not null default '',
   active boolean not null default true

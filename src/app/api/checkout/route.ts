@@ -4,6 +4,12 @@ import { db } from "@/lib/db";
 import { sendOrderConfirmation } from "@/lib/mail";
 import { isOrderable } from "@/lib/seed";
 import { Order, OrderItem } from "@/lib/types";
+import { Lang, localePath } from "@/lib/i18n";
+
+/** Fehler gehen als sprachneutraler Code raus; den Text setzt der Client aus dem Wörterbuch. */
+function fail(code: string, status: number, extra?: Record<string, unknown>) {
+  return NextResponse.json({ code, ...extra }, { status });
+}
 
 const SHIPPING_RAPPEN = 900;
 
@@ -17,6 +23,7 @@ function orderId(): string {
 interface CheckoutBody {
   items: { productId: string; size: string; qty: number }[];
   customer: { email: string; name: string; street: string; zip: string; city: string };
+  lang?: Lang;
 }
 
 export async function POST(req: Request) {
@@ -24,16 +31,17 @@ export async function POST(req: Request) {
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ error: "Ungültige Anfrage" }, { status: 400 });
+    return fail("invalid_request", 400);
   }
 
   const { items, customer } = body;
-  if (!items?.length) return NextResponse.json({ error: "Warenkorb ist leer" }, { status: 400 });
+  const lang: Lang = body.lang === "en" ? "en" : "de";
+  if (!items?.length) return fail("cart_empty", 400);
   if (!customer?.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer.email)) {
-    return NextResponse.json({ error: "Bitte gültige E-Mail angeben" }, { status: 400 });
+    return fail("invalid_email", 400);
   }
   if (!customer.name || !customer.street || !customer.zip || !customer.city) {
-    return NextResponse.json({ error: "Bitte Lieferadresse vollständig ausfüllen" }, { status: 400 });
+    return fail("address_incomplete", 400);
   }
 
   // Preise & Produkte IMMER serverseitig auflösen — Client-Preise sind nicht vertrauenswürdig
@@ -42,18 +50,15 @@ export async function POST(req: Request) {
   for (const item of items) {
     const qty = Math.floor(Number(item.qty));
     if (!Number.isFinite(qty) || qty < 1 || qty > 10) {
-      return NextResponse.json({ error: "Ungültige Menge" }, { status: 400 });
+      return fail("invalid_qty", 400);
     }
     const product = products.find((p) => p.id === item.productId && p.active);
     const variant = product?.variants.find((v) => v.size === item.size);
     if (!product || !variant) {
-      return NextResponse.json({ error: "Produkt nicht gefunden" }, { status: 400 });
+      return fail("product_not_found", 400);
     }
     if (!isOrderable(product)) {
-      return NextResponse.json(
-        { error: `${product.name} ist noch nicht bestellbar (bald verfügbar)` },
-        { status: 400 }
-      );
+      return fail("not_orderable", 400, { product: product.name });
     }
     orderItems.push({
       productId: product.id,
@@ -72,10 +77,8 @@ export async function POST(req: Request) {
   try {
     await db.reserveStock(orderItems);
   } catch (e) {
-    return NextResponse.json(
-      { error: e instanceof Error ? e.message : "Bestand nicht verfügbar" },
-      { status: 409 }
-    );
+    console.error("Bestandsreservierung fehlgeschlagen:", e);
+    return fail("out_of_stock", 409);
   }
 
   const order: Order = {
@@ -101,7 +104,7 @@ export async function POST(req: Request) {
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || new URL(req.url).origin;
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
-        locale: "de",
+        locale: lang,
         // Läuft die Session ab, gibt der Webhook den reservierten Bestand wieder frei
         expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
         customer_email: order.email,
@@ -110,7 +113,7 @@ export async function POST(req: Request) {
             price_data: {
               currency: "chf",
               unit_amount: i.priceRappen,
-              product_data: { name: `JIZAI ${i.name} — Grösse ${i.size}` },
+              product_data: { name: `JIZAI ${i.name} — ${lang === "en" ? "size" : "Grösse"} ${i.size}` },
             },
             quantity: i.qty,
           })),
@@ -118,14 +121,14 @@ export async function POST(req: Request) {
             price_data: {
               currency: "chf",
               unit_amount: SHIPPING_RAPPEN,
-              product_data: { name: "Versand (CH)" },
+              product_data: { name: lang === "en" ? "Shipping (CH)" : "Versand (CH)" },
             },
             quantity: 1,
           },
         ],
-        metadata: { orderId: order.id },
-        success_url: `${baseUrl}/checkout/success?order=${order.id}`,
-        cancel_url: `${baseUrl}/checkout?cancelled=1`,
+        metadata: { orderId: order.id, lang },
+        success_url: `${baseUrl}${localePath(lang, "/checkout/success")}?order=${order.id}`,
+        cancel_url: `${baseUrl}${localePath(lang, "/checkout")}?cancelled=1`,
       });
       order.stripeSessionId = session.id;
       await db.createOrder(order);
@@ -133,13 +136,13 @@ export async function POST(req: Request) {
     } catch (e) {
       await db.restoreStock(orderItems);
       console.error("Stripe-Fehler:", e);
-      return NextResponse.json({ error: "Zahlung konnte nicht gestartet werden" }, { status: 502 });
+      return fail("payment_failed", 502);
     }
   }
 
   // Demo-Modus: Bestellung direkt als bezahlt markieren
   order.status = "paid";
   await db.createOrder(order);
-  await sendOrderConfirmation(order); // blockiert nie — Fehler werden nur geloggt
+  await sendOrderConfirmation(order, lang); // blockiert nie — Fehler werden nur geloggt
   return NextResponse.json({ mode: "demo", orderId: order.id });
 }

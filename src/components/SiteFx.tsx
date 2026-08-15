@@ -2,10 +2,20 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { langFromPath } from "@/lib/i18n";
 
 /** Globale Effekte: Custom Cursor + Nav-Verhalten beim Scrollen. */
 export default function SiteFx() {
   const pathname = usePathname();
+
+  /*
+   * <html lang> pflegen. Das Root-Layout kennt den Pfad nicht (Server-Komponente
+   * ohne Zugriff auf die URL), deshalb setzt es die Sprache hier — die
+   * hreflang-/canonical-Auszeichnung pro Route liefert generateMetadata.
+   */
+  useEffect(() => {
+    document.documentElement.lang = langFromPath(pathname);
+  }, [pathname]);
 
   useEffect(() => {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;

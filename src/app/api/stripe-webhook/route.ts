@@ -37,7 +37,8 @@ export async function POST(req: Request) {
     const orderId = session.metadata?.orderId;
     if (orderId && session.payment_status === "paid") {
       const order = await db.getOrder(orderId);
-      if (order) await markOrderPaid(order);
+      // Die Sprache der Bestellung reist in den Stripe-Metadaten mit
+      if (order) await markOrderPaid(order, session.metadata?.lang === "en" ? "en" : "de");
     }
   }
 

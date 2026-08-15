@@ -1,18 +1,22 @@
 "use client";
 
 import { useState } from "react";
+import { Lang, t } from "@/lib/i18n";
 
 export default function ProductGallery({
   images,
   alt,
   kanji,
   badge,
+  lang,
 }: {
   images: string[];
   alt: string;
   kanji: string;
   badge?: string;
+  lang: Lang;
 }) {
+  const d = t(lang);
   const [active, setActive] = useState(0);
   const current = images[active] ?? images[0];
 
@@ -28,7 +32,7 @@ export default function ProductGallery({
       {badge && <span className="piece-badge is-ha product-ha-badge">{badge}</span>}
 
       {images.length > 1 && (
-        <div className="pg-thumbs" role="tablist" aria-label="Produktbilder">
+        <div className="pg-thumbs" role="tablist" aria-label={d.productGalleryLabel}>
           {images.map((url, i) => (
             <button
               key={url}
@@ -39,7 +43,7 @@ export default function ProductGallery({
               data-hover
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={url} alt={`${alt} — Bild ${i + 1}`} />
+              <img src={url} alt={d.productImageAlt(alt, i + 1)} />
             </button>
           ))}
         </div>

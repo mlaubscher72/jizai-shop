@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { Lang, t } from "@/lib/i18n";
 
-export default function WaitlistForm() {
+export default function WaitlistForm({ lang }: { lang: Lang }) {
+  const d = t(lang);
   const [email, setEmail] = useState("");
   const [state, setState] = useState<"idle" | "busy" | "sent" | "error">("idle");
 
@@ -35,19 +37,19 @@ export default function WaitlistForm() {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="deine@email.ch"
+          placeholder={d.waitlistPlaceholder}
           required
           autoComplete="email"
-          aria-label="E-Mail-Adresse"
+          aria-label={d.waitlistEmailAria}
           style={state === "error" ? { color: "#b03a2b" } : undefined}
         />
         <button type="submit" data-hover disabled={state === "busy"}>
-          <span className="wf-btn-label">{state === "busy" ? "…" : "Join the ritual"}</span>
-          <span className="wf-btn-kana" title="参加 — teilnehmen">参加</span>
+          <span className="wf-btn-label">{state === "busy" ? "…" : d.waitlistButton}</span>
+          <span className="wf-btn-kana" title="参加 sanka — teilnehmen">参加</span>
         </button>
       </div>
-      <p className="wf-note">Early Access auf Akt II · kein Spam · nur Drops</p>
-      <p className="wf-success">ようこそ — willkommen. Du bist auf der Liste. Begin before the noise.</p>
+      <p className="wf-note">{d.waitlistNote}</p>
+      <p className="wf-success">{d.waitlistSuccess}</p>
     </form>
   );
 }

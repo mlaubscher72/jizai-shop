@@ -5,9 +5,9 @@ import { langAlternates, t } from "@/lib/i18n";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: t("de").metaTitle,
-  description: t("de").metaDescription,
-  alternates: langAlternates("de", "/"),
+  title: t("en").metaTitle,
+  description: t("en").metaDescription,
+  alternates: langAlternates("en", "/"),
 };
 
 export default async function Page({
@@ -16,5 +16,5 @@ export default async function Page({
   searchParams: Promise<{ vorschau?: string }>;
 }) {
   const { vorschau } = await searchParams;
-  return <HomeView lang="de" preview={vorschau} />;
+  return <HomeView lang="en" preview={vorschau} />;
 }

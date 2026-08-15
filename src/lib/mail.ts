@@ -1,4 +1,5 @@
 import { formatCHF, Order } from "./types";
+import { Lang, localePath } from "./i18n";
 
 /**
  * E-Mail-Versand über Resend (https://resend.com) — per HTTP, ohne SDK.
@@ -51,14 +52,55 @@ async function sendMail(to: string, subject: string, html: string): Promise<Mail
 
 /* ---------- Bestellbestätigung ---------- */
 
-export function renderOrderEmail(order: Order): string {
+/** Mail-Texte separat vom Website-Wörterbuch — hier zählt E-Mail-taugliche Kürze. */
+const MAIL_TEXT = {
+  de: {
+    subject: (id: string) => `Deine JIZAI-Bestellung ${id} — Begin before the noise.`,
+    kicker: "BESTELLUNG BESTÄTIGT",
+    hello: (name: string) => `Danke, ${name}.`,
+    intro: (id: string) =>
+      `Deine Bestellung <strong style="color:#242424;">${id}</strong> ist bei uns eingegangen. Wir packen dein Stück mit Ruhe und Sorgfalt — du hörst von uns, sobald es unterwegs ist.`,
+    size: (size: string, qty: number) => `— Grösse ${size} · ${qty}×`,
+    shipping: "Versand (CH)",
+    total: "Total",
+    trackLabel: "BESTELLUNG VERFOLGEN",
+    trackText: (id: string) =>
+      `Status ansehen oder erneut bestellen — mit dieser E-Mail und der Nummer <strong style="color:#242424;">${id}</strong>:`,
+    addressLabel: "LIEFERADRESSE",
+    notifySubject: (id: string, total: string) => `Neue Bestellung ${id} — ${total}`,
+    notifyLine: (name: string, email: string) => `${name} (${email}) hat bestellt:`,
+    notifyTotal: "Total",
+  },
+  en: {
+    subject: (id: string) => `Your JIZAI order ${id} — Begin before the noise.`,
+    kicker: "ORDER CONFIRMED",
+    hello: (name: string) => `Thank you, ${name}.`,
+    intro: (id: string) =>
+      `Your order <strong style="color:#242424;">${id}</strong> has reached us. We pack your piece with care — you'll hear from us as soon as it's on its way.`,
+    size: (size: string, qty: number) => `— size ${size} · ${qty}×`,
+    shipping: "Shipping (CH)",
+    total: "Total",
+    trackLabel: "TRACK YOUR ORDER",
+    trackText: (id: string) =>
+      `Check the status or order again — with this email address and the number <strong style="color:#242424;">${id}</strong>:`,
+    addressLabel: "DELIVERY ADDRESS",
+    notifySubject: (id: string, total: string) => `New order ${id} — ${total}`,
+    notifyLine: (name: string, email: string) => `${name} (${email}) ordered:`,
+    notifyTotal: "Total",
+  },
+} as const;
+
+export function renderOrderEmail(order: Order, lang: Lang = "de"): string {
+  const m = MAIL_TEXT[lang] ?? MAIL_TEXT.de;
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://jizai-shop.vercel.app";
+  const trackPath = localePath(lang, "/bestellung");
+
   const rows = order.items
     .map(
       (i) => `
       <tr>
         <td style="padding:12px 0;border-bottom:1px solid #ddd5c4;font-size:14px;color:#242424;">
-          JIZAI ${i.name} <span style="color:#9A958B;">— Grösse ${i.size} · ${i.qty}×</span>
+          JIZAI ${escapeHtml(i.name)} <span style="color:#9A958B;">${m.size(i.size, i.qty)}</span>
         </td>
         <td style="padding:12px 0;border-bottom:1px solid #ddd5c4;font-size:14px;color:#242424;text-align:right;white-space:nowrap;">
           ${formatCHF(i.priceRappen * i.qty)}
@@ -71,7 +113,7 @@ export function renderOrderEmail(order: Order): string {
   const shipping = order.totalRappen - itemsTotal;
 
   return `<!DOCTYPE html>
-<html lang="de">
+<html lang="${lang}">
 <body style="margin:0;padding:0;background:#E9E2D6;font-family:Helvetica,Arial,sans-serif;">
   <div style="max-width:560px;margin:0 auto;padding:40px 24px;">
 
@@ -82,35 +124,33 @@ export function renderOrderEmail(order: Order): string {
 
     <div style="background:#faf7f1;border:1px solid #ddd5c4;border-radius:10px;padding:32px 28px;">
       <div style="display:inline-block;background:#8C2F24;color:#E9E2D6;font-size:11px;letter-spacing:2px;padding:6px 12px;border-radius:99px;">
-        BESTELLUNG BESTÄTIGT
+        ${m.kicker}
       </div>
 
-      <h1 style="font-size:22px;color:#242424;margin:18px 0 6px;">Danke, ${escapeHtml(order.name)}.</h1>
+      <h1 style="font-size:22px;color:#242424;margin:18px 0 6px;">${escapeHtml(m.hello(order.name))}</h1>
       <p style="font-size:14px;color:#6b665c;line-height:1.6;margin:0 0 22px;">
-        Deine Bestellung <strong style="color:#242424;">${order.id}</strong> ist bei uns eingegangen.
-        Wir packen dein Stück mit Ruhe und Sorgfalt — du hörst von uns, sobald es unterwegs ist.
+        ${m.intro(order.id)}
       </p>
 
       <table style="width:100%;border-collapse:collapse;">
         ${rows}
         <tr>
-          <td style="padding:12px 0 4px;font-size:13px;color:#9A958B;">Versand (CH)</td>
+          <td style="padding:12px 0 4px;font-size:13px;color:#9A958B;">${m.shipping}</td>
           <td style="padding:12px 0 4px;font-size:13px;color:#9A958B;text-align:right;">${formatCHF(shipping)}</td>
         </tr>
         <tr>
-          <td style="padding:10px 0;font-size:15px;color:#242424;font-weight:bold;">Total</td>
+          <td style="padding:10px 0;font-size:15px;color:#242424;font-weight:bold;">${m.total}</td>
           <td style="padding:10px 0;font-size:15px;color:#242424;font-weight:bold;text-align:right;">${formatCHF(order.totalRappen)}</td>
         </tr>
       </table>
 
       <div style="margin-top:22px;padding-top:18px;border-top:1px solid #ddd5c4;">
-        <div style="font-size:11px;letter-spacing:2px;color:#8C2F24;padding-bottom:6px;">BESTELLUNG VERFOLGEN</div>
+        <div style="font-size:11px;letter-spacing:2px;color:#8C2F24;padding-bottom:6px;">${m.trackLabel}</div>
         <p style="font-size:13px;color:#6b665c;line-height:1.6;margin:0 0 18px;">
-          Status ansehen oder erneut bestellen — mit dieser E-Mail und der Nummer
-          <strong style="color:#242424;">${order.id}</strong>:<br>
-          <a href="${baseUrl}/bestellung" style="color:#8C2F24;">${baseUrl.replace(/^https?:\/\//, "")}/bestellung</a>
+          ${m.trackText(order.id)}<br>
+          <a href="${baseUrl}${trackPath}" style="color:#8C2F24;">${baseUrl.replace(/^https?:\/\//, "")}${trackPath}</a>
         </p>
-        <div style="font-size:11px;letter-spacing:2px;color:#8C2F24;padding-bottom:6px;">LIEFERADRESSE</div>
+        <div style="font-size:11px;letter-spacing:2px;color:#8C2F24;padding-bottom:6px;">${m.addressLabel}</div>
         <p style="font-size:14px;color:#242424;line-height:1.6;margin:0;">
           ${escapeHtml(order.name)}<br>
           ${escapeHtml(order.street)}<br>
@@ -135,22 +175,20 @@ function escapeHtml(s: string): string {
 }
 
 /** Bestätigung an Kund:in + optionale Kopie an den Shop. Fehler blockieren die Bestellung nie. */
-export async function sendOrderConfirmation(order: Order): Promise<MailResult> {
-  const result = await sendMail(
-    order.email,
-    `Deine JIZAI-Bestellung ${order.id} — Begin before the noise.`,
-    renderOrderEmail(order)
-  );
+export async function sendOrderConfirmation(order: Order, lang: Lang = "de"): Promise<MailResult> {
+  const m = MAIL_TEXT[lang] ?? MAIL_TEXT.de;
+
+  const result = await sendMail(order.email, m.subject(order.id), renderOrderEmail(order, lang));
 
   const notify = process.env.ORDER_NOTIFY_EMAIL;
   if (notify) {
     const items = order.items.map((i) => `${i.qty}× ${i.name} (${i.size})`).join(", ");
     await sendMail(
       notify,
-      `Neue Bestellung ${order.id} — ${formatCHF(order.totalRappen)}`,
-      `<p>${escapeHtml(order.name)} (${escapeHtml(order.email)}) hat bestellt:</p>
+      m.notifySubject(order.id, formatCHF(order.totalRappen)),
+      `<p>${escapeHtml(m.notifyLine(order.name, order.email))}</p>
        <p><strong>${escapeHtml(items)}</strong></p>
-       <p>Total: <strong>${formatCHF(order.totalRappen)}</strong><br>
+       <p>${m.notifyTotal}: <strong>${formatCHF(order.totalRappen)}</strong><br>
        ${escapeHtml(order.street)}, ${escapeHtml(order.zip)} ${escapeHtml(order.city)}</p>`
     );
   }

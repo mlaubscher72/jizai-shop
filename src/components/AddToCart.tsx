@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { useCart } from "./CartContext";
 import { formatCHF, Product, Size } from "@/lib/types";
+import { Lang, t } from "@/lib/i18n";
 
-export default function AddToCart({ product }: { product: Product }) {
+export default function AddToCart({ product, lang }: { product: Product; lang: Lang }) {
+  const d = t(lang);
   const { add } = useCart();
   const [size, setSize] = useState<Size | null>(null);
   const [hint, setHint] = useState(false);
@@ -31,7 +33,7 @@ export default function AddToCart({ product }: { product: Product }) {
 
   return (
     <div className="atc">
-      <div className="atc-sizes" role="radiogroup" aria-label="Grösse wählen">
+      <div className="atc-sizes" role="radiogroup" aria-label={d.sizeGroupAria}>
         {product.variants.map((v) => (
           <button
             key={v.size}
@@ -49,16 +51,16 @@ export default function AddToCart({ product }: { product: Product }) {
       </div>
 
       <p className={`atc-hint${hint ? " is-visible" : ""}`}>
-        {soldOut ? "Ausverkauft — trag dich unten in die Waitlist ein." : "Bitte zuerst eine Grösse wählen."}
+        {soldOut ? d.soldOutHint : d.sizeHint}
       </p>
 
       {selected && selected.stock <= 5 && selected.stock > 0 && (
-        <p className="atc-low">Nur noch {selected.stock} Stück in {selected.size}.</p>
+        <p className="atc-low">{d.lowStock(selected.stock, selected.size)}</p>
       )}
 
       <button className="btn-seal atc-btn" onClick={handleAdd} disabled={soldOut} data-hover>
-        {soldOut ? "Ausverkauft" : `In den Warenkorb — ${formatCHF(product.priceRappen)}`}
-        {!soldOut && <span className="btn-kana">籠</span>}
+        {soldOut ? d.soldOut : d.addToCart(formatCHF(product.priceRappen))}
+        {!soldOut && <span className="btn-kana" title="籠 kago — Korb">籠</span>}
       </button>
     </div>
   );

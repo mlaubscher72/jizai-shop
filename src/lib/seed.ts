@@ -25,6 +25,7 @@ export const SEED_PRODUCTS: Product[] = [
     accent: "#9A958B",
     priceRappen: chf(TEE_CORE),
     description: "Der gebrochene Ensō. Kleine Frontmarke, maximaler Negativraum. Das leiseste Stück der Serie.",
+    descriptionEn: "The broken ensō. A small mark on the front, maximum negative space. The quietest piece of the series.",
     images: ["/assets/tee-core.jpg", `${STORAGE}/core-enso-back.jpg`],
     active: true,
     variants: [
@@ -44,6 +45,7 @@ export const SEED_PRODUCTS: Product[] = [
     accent: "#C8B79A",
     priceRappen: chf(TEE_HERO),
     description: "Die gehaltene Form: Meditation im gebrochenen Ensō, Tusche auf Soft Stone. Energie, enthalten — nicht entladen.",
+    descriptionEn: "The form, held: a meditation inside the broken ensō, ink on soft stone. Energy contained — not released.",
     images: [`${STORAGE}/form-samurai.jpg`],
     active: true,
     variants: [
@@ -63,6 +65,7 @@ export const SEED_PRODUCTS: Product[] = [
     accent: "#8C2F24",
     priceRappen: chf(HOODIE),
     description: "Schwerer Hoodie, gebrochener Ensō als Backprint. Ruhe, die man trägt.",
+    descriptionEn: "Heavyweight hoodie, broken ensō as a backprint. Calm you can wear.",
     images: ["/assets/hoodie-still.jpg"],
     active: true,
     variants: [
@@ -84,6 +87,7 @@ export const SEED_PRODUCTS: Product[] = [
     accent: "#2E4E8F",
     priceRappen: chf(TEE_HERO),
     description: "Zwei Koi, ein Kreis aus Bewegung — vom JIZAI Cut präzise durchtrennt. Form wird gebrochen, nicht zerstört. Indigo auf Soft Stone.",
+    descriptionEn: "Two koi, a circle of movement — severed with precision by the JIZAI Cut. The form is broken, not destroyed. Indigo on soft stone.",
     images: [`${STORAGE}/break-koi.jpg`],
     active: true,
     variants: [
@@ -103,6 +107,7 @@ export const SEED_PRODUCTS: Product[] = [
     accent: "#5E7285",
     priceRappen: chf(TEE_HERO),
     description: "Die Figur im Impuls: Tusche in Bewegung, der Strich als Kraft. Der Moment, in dem die Form aufbricht.",
+    descriptionEn: "The figure mid-impulse: ink in motion, the stroke as force. The moment the form breaks open.",
     images: ["/assets/tee-motion.jpg"],
     active: true,
     variants: [
@@ -122,6 +127,7 @@ export const SEED_PRODUCTS: Product[] = [
     accent: "#8C2F24",
     priceRappen: chf(HOODIE),
     description: "Der durchtrennte Kreis als Backprint auf schwerem Stoff. Präzision statt Lärm.",
+    descriptionEn: "The severed circle as a backprint on heavy fabric. Precision instead of noise.",
     images: ["/assets/hoodie-break.jpg"],
     active: true,
     variants: [

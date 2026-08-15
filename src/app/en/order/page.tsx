@@ -5,9 +5,9 @@ import { langAlternates, t } from "@/lib/i18n";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: t("de").orderMetaTitle,
-  description: t("de").orderMetaDescription,
-  alternates: langAlternates("de", "/bestellung"),
+  title: t("en").orderMetaTitle,
+  description: t("en").orderMetaDescription,
+  alternates: langAlternates("en", "/bestellung"),
 };
 
 export default async function Page({
@@ -16,5 +16,5 @@ export default async function Page({
   searchParams: Promise<{ error?: string; locked?: string }>;
 }) {
   const { error, locked } = await searchParams;
-  return <OrderView lang="de" error={error} locked={locked} />;
+  return <OrderView lang="en" error={error} locked={locked} />;
 }

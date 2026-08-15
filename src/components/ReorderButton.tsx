@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCart } from "./CartContext";
 import { CartItem } from "@/lib/types";
+import { Lang, localePath, t } from "@/lib/i18n";
 
 export interface PrefillAddress {
   email: string;
@@ -21,11 +22,14 @@ export default function ReorderButton({
   items,
   address,
   skipped,
+  lang,
 }: {
   items: Omit<CartItem, "qty">[] & { qty?: number }[];
   address: PrefillAddress;
   skipped: number;
+  lang: Lang;
 }) {
+  const d = t(lang);
   const { add } = useCart();
   const router = useRouter();
 
@@ -39,28 +43,19 @@ export default function ReorderButton({
       const { qty = 1, ...rest } = item;
       add(rest as Omit<CartItem, "qty">, qty);
     }
-    router.push("/checkout");
+    router.push(localePath(lang, "/checkout"));
   }
 
   if (items.length === 0) {
-    return (
-      <p className="ord-note">
-        Keine Artikel dieser Bestellung sind aktuell bestellbar.
-      </p>
-    );
+    return <p className="ord-note">{d.reorderNone}</p>;
   }
 
   return (
     <div className="ord-reorder">
       <button className="btn-seal" onClick={reorder} data-hover>
-        Nochmals bestellen
+        {d.reorder}
       </button>
-      {skipped > 0 && (
-        <p className="ord-note">
-          {skipped === 1 ? "Ein Artikel ist" : `${skipped} Artikel sind`} derzeit nicht
-          bestellbar und {skipped === 1 ? "wurde" : "wurden"} ausgelassen.
-        </p>
-      )}
+      {skipped > 0 && <p className="ord-note">{d.reorderSkipped(skipped)}</p>}
     </div>
   );
 }

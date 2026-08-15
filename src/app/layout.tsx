@@ -26,7 +26,9 @@ const zenkaku = Zen_Kaku_Gothic_New({
   preload: false,
 });
 
+/* metadataBase macht die hreflang-/canonical-Pfade der Seiten zu absoluten URLs */
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "https://jizaihouse.com"),
   title: "JIZAI — Begin before the noise.",
   description:
     "JIZAI — Urban Streetwear, geformt von Disziplin, Bewegung und japanischer Zurückhaltung. Drop 01 · 守破 SHU × HA.",

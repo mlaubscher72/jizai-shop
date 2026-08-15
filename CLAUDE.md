@@ -104,6 +104,38 @@ Schema-Änderungen können nicht über die API ausgeführt werden; SQL muss im
 Supabase-SQL-Editor eingefügt werden (`supabase/schema.sql`,
 `supabase/migration-2fa.sql`).
 
+## Zweisprachigkeit — Deutsch auf `/`, Englisch auf `/en`
+Alle UI-Texte liegen in `src/lib/i18n.tsx` (`.tsx`, weil ein Eintrag JSX enthält).
+`t(lang)` liefert das Wörterbuch, `localePath(lang, path)` baut Links.
+
+Jede Seite existiert **einmal** als Komponente in `src/components/pages/` und
+wird von zwei dünnen Routen aufgerufen — `src/app/…` (de) und `src/app/en/…` (en).
+Neue Seiten immer so anlegen, sonst laufen die Sprachen auseinander.
+Einzige Pfad-Abweichung: `/bestellung` heisst auf Englisch `/en/order`;
+`localePath` und `switchPath` kennen diesen Sonderfall.
+
+- **Client-Komponenten im Root-Layout** (`Nav`, `CartDrawer`, `SiteFx`) bekommen
+  keine Server-Props und leiten die Sprache mit `langFromPath(usePathname())` ab.
+  `SiteFx` setzt daraus auch `<html lang>` — das Root-Layout kennt den Pfad nicht.
+- **hreflang/canonical** kommen pro Route aus `langAlternates()` in
+  `generateMetadata`/`metadata`; `metadataBase` steht im Root-Layout.
+- **Produkttexte**: Spalte `description_en` (`supabase/migration-i18n.sql`).
+  Leeres Feld → `productDescription()` fällt auf den deutschen Text zurück.
+  Beide Treiber vertragen eine fehlende Spalte und speichern dann ohne sie.
+- **Checkout-API** liefert Fehler als sprachneutrale Codes (`{ code: "cart_empty" }`);
+  den Text setzt der Client aus dem Wörterbuch. Keine Fehlertexte in der Route.
+- **Bestellbestätigung**: `sendOrderConfirmation(order, lang)`. Bei Stripe reist die
+  Sprache in `metadata.lang` mit, damit auch der Webhook sie kennt.
+- **Automatische Sprachwahl**: `src/proxy.ts` leitet **nur `/`** per 307 auf `/en`,
+  wenn der Browser Englisch höher gewichtet als Deutsch. Übersprungen wird bei
+  gesetztem Cookie `jizai_lang` (eigene Wahl gewinnt immer, gesetzt von
+  `LangSwitch`), bei Crawlern und ohne `Accept-Language`. Unterseiten werden nie
+  umgeleitet — geteilte Links behalten ihre Sprache. Proxy läuft getrennt vom
+  Render-Code: **keine Importe aus `src/lib`** dort.
+- Marken-Claims ("Begin before the noise.", Produktnamen) bleiben in beiden
+  Sprachen Englisch. Japanische Zeichen tragen immer ihre Bedeutung mit sich.
+- Das Admin-Backend bleibt bewusst einsprachig deutsch.
+
 ## Produktmodell: Kategorie ≠ Bestellbarkeit
 Zwei unabhängige Achsen — häufige Verwechslungsquelle:
 

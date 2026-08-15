@@ -16,6 +16,8 @@ export interface Product {
   accent: string;
   priceRappen: number;
   description: string;
+  /** Englische Beschreibung. Leer = die englische Seite zeigt den deutschen Text. */
+  descriptionEn?: string;
   /** Erstes Bild = Hauptbild (Karten, Warenkorb); weitere = Galerie. */
   images: string[];
   active: boolean;

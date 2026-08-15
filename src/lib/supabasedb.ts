@@ -28,6 +28,7 @@ interface ProductRow {
   accent: string;
   price_rappen: number;
   description: string;
+  description_en: string | null;
   story: string;
   image: string;
   active: boolean;
@@ -60,6 +61,7 @@ function rowToProduct(row: ProductRow): Product {
     accent: row.accent,
     priceRappen: row.price_rappen,
     description: row.description,
+    descriptionEn: row.description_en ?? undefined,
     images: columnToImages(row.image),
     // story-Spalte dient als Bestellbar-Flag ("1"/"0"); Alt-Daten: 守 = bestellbar
     orderable: row.story === "1" ? true : row.story === "0" ? false : row.kanji === "守",
@@ -97,6 +99,7 @@ export const supabaseDb = {
     if (patch.name !== undefined) row.name = patch.name;
     if (patch.subtitle !== undefined) row.subtitle = patch.subtitle;
     if (patch.description !== undefined) row.description = patch.description;
+    if (patch.descriptionEn !== undefined) row.description_en = patch.descriptionEn || null;
     if (patch.orderable !== undefined) row.story = patch.orderable ? "1" : "0";
     if (patch.priceRappen !== undefined) row.price_rappen = patch.priceRappen;
     if (patch.active !== undefined) row.active = patch.active;
@@ -105,7 +108,14 @@ export const supabaseDb = {
     if (patch.images !== undefined) row.image = imagesToColumn(patch.images);
     if (Object.keys(row).length > 0) {
       const { error } = await sb().from("products").update(row).eq("id", id);
-      if (error) throw error;
+      // Läuft migration-i18n.sql noch nicht, fehlt description_en — dann ohne
+      // das Feld speichern, statt die ganze Produktbearbeitung zu blockieren.
+      if (error) {
+        if (!("description_en" in row) || !error.message.includes("description_en")) throw error;
+        delete row.description_en;
+        const { error: retry } = await sb().from("products").update(row).eq("id", id);
+        if (retry) throw retry;
+      }
     }
     if (patch.variants) {
       for (const v of patch.variants) {
@@ -121,7 +131,7 @@ export const supabaseDb = {
   },
 
   async createProduct(product: Product): Promise<void> {
-    const { error } = await sb().from("products").insert({
+    const row: Record<string, unknown> = {
       id: product.id,
       slug: product.slug,
       name: product.name,
@@ -130,10 +140,17 @@ export const supabaseDb = {
       accent: product.accent,
       price_rappen: product.priceRappen,
       description: product.description,
+      description_en: product.descriptionEn || null,
       story: product.orderable ? "1" : "0",
       image: imagesToColumn(product.images),
       active: product.active,
-    });
+    };
+    let { error } = await sb().from("products").insert(row);
+    // Wie bei updateProduct: ohne migration-i18n.sql fehlt description_en noch
+    if (error && error.message.includes("description_en")) {
+      delete row.description_en;
+      ({ error } = await sb().from("products").insert(row));
+    }
     if (error) {
       if (error.code === "23505") throw new Error("Slug oder ID bereits vergeben");
       throw error;

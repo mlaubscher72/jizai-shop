@@ -13,13 +13,13 @@ export async function generateMetadata({
   const { slug } = await params;
   const product = await db.getProductBySlug(slug);
   return {
-    title: product ? `${product.name} — JIZAI` : t("de").metaTitle,
-    description: product ? productDescription(product, "de") : t("de").metaDescription,
-    alternates: langAlternates("de", `/product/${slug}`),
+    title: product ? `${product.name} — JIZAI` : t("en").metaTitle,
+    description: product ? productDescription(product, "en") : t("en").metaDescription,
+    alternates: langAlternates("en", `/product/${slug}`),
   };
 }
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  return <ProductView lang="de" slug={slug} />;
+  return <ProductView lang="en" slug={slug} />;
 }

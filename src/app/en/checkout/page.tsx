@@ -3,11 +3,11 @@ import CheckoutView from "@/components/pages/CheckoutView";
 import { langAlternates, t } from "@/lib/i18n";
 
 export const metadata: Metadata = {
-  title: `${t("de").checkoutTitle} — JIZAI`,
+  title: `${t("en").checkoutTitle} — JIZAI`,
   robots: { index: false },
-  alternates: langAlternates("de", "/checkout"),
+  alternates: langAlternates("en", "/checkout"),
 };
 
 export default function Page() {
-  return <CheckoutView lang="de" />;
+  return <CheckoutView lang="en" />;
 }

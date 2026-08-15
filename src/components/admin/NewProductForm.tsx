@@ -73,8 +73,16 @@ export default function NewProductForm() {
             <span>Sofort im Shop sichtbar</span>
           </label>
           <label className="npf-wide">
-            <span>Beschreibung</span>
+            <span>Beschreibung (Deutsch)</span>
             <textarea name="description" rows={2} placeholder="Kurzer Produkttext …" />
+          </label>
+          <label className="npf-wide">
+            <span>Beschreibung (English)</span>
+            <textarea
+              name="description_en"
+              rows={2}
+              placeholder="Leer lassen = englische Seite zeigt den deutschen Text"
+            />
           </label>
         </div>
 

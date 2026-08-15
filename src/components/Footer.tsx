@@ -1,4 +1,7 @@
-export default function Footer() {
+import { Lang, localePath, t } from "@/lib/i18n";
+
+export default function Footer({ lang }: { lang: Lang }) {
+  const d = t(lang);
   return (
     <footer className="footer">
       <div className="footer-top">
@@ -6,23 +9,23 @@ export default function Footer() {
       </div>
       <div className="footer-grid">
         <div>
-          <p className="footer-label">Brand</p>
+          <p className="footer-label">{d.footerBrandLabel}</p>
           <p>
-            Urban streetwear shaped by discipline,
+            {d.footerBrandA}
             <br />
-            movement and Japanese restraint.
+            {d.footerBrandB}
           </p>
         </div>
         <div>
-          <p className="footer-label">Studio</p>
+          <p className="footer-label">{d.footerStudioLabel}</p>
           <p>
-            Liestal, Schweiz
+            {d.footerStudioA}
             <br />
-            Atelier
+            {d.footerStudioB}
           </p>
         </div>
         <div>
-          <p className="footer-label">Social</p>
+          <p className="footer-label">{d.footerSocialLabel}</p>
           <p>
             <a href="#" data-hover>Instagram</a>
             <br />
@@ -30,17 +33,17 @@ export default function Footer() {
           </p>
         </div>
         <div>
-          <p className="footer-label">Kontakt</p>
+          <p className="footer-label">{d.footerContactLabel}</p>
           <p>
             <a href="mailto:hello@jizai.ch" data-hover>hello@jizai.ch</a>
           </p>
         </div>
         <div>
-          <p className="footer-label">Bestellung</p>
+          <p className="footer-label">{d.footerOrderLabel}</p>
           <p>
-            <a href="/bestellung" data-hover>Bestellung verfolgen</a>
+            <a href={localePath(lang, "/bestellung")} data-hover>{d.footerTrackOrder}</a>
             <br />
-            <a href="/admin" className="footer-admin" data-hover>Admin</a>
+            <a href="/admin" className="footer-admin" data-hover>{d.footerAdmin}</a>
           </p>
         </div>
       </div>
@@ -48,8 +51,8 @@ export default function Footer() {
         <span>© 2026 JIZAI · ジザイ</span>
         <span className="footer-line-quote">First the form. Then the freedom.</span>
         <span className="footer-seal-wrap">
-          <span className="footer-seal" title="自在 jizai — im eigenen Sein">自在</span>
-          <span className="jp-caption">im eigenen Sein</span>
+          <span className="footer-seal" title={d.footerSealTitle}>自在</span>
+          <span className="jp-caption">{d.footerSealMeaning}</span>
         </span>
       </div>
     </footer>

@@ -194,6 +194,7 @@ export async function updateProductAction(formData: FormData) {
   const active = formData.get("active") === "on";
   const act = parseAct(formData.get("act"));
   const description = String(formData.get("description") || "").trim();
+  const descriptionEn = String(formData.get("description_en") || "").trim();
 
   const variants = SIZES.map((size) => ({
     size: size as Size,
@@ -206,6 +207,7 @@ export async function updateProductAction(formData: FormData) {
     orderable: formData.get("orderable") === "1",
     kanji: ACT_KANJI[act],
     description: description || undefined,
+    descriptionEn,
     variants,
   });
   revalidateShop();
@@ -219,6 +221,7 @@ export async function createProductAction(formData: FormData) {
   const priceFrancs = parseFloat(String(formData.get("price") || "89").replace(",", "."));
   const subtitle = String(formData.get("subtitle") || "").trim() || "Oversized Heavyweight Tee · 280 GSM";
   const description = String(formData.get("description") || "").trim();
+  const descriptionEn = String(formData.get("description_en") || "").trim();
   const active = formData.get("active") === "on";
   const stock = Math.max(0, Math.floor(Number(formData.get("stock")) || 0));
   const images = formData
@@ -235,6 +238,7 @@ export async function createProductAction(formData: FormData) {
     accent: act === "shu" ? "#9A958B" : act === "ha" ? "#8C2F24" : "#C8B79A",
     priceRappen: Number.isFinite(priceFrancs) ? Math.round(priceFrancs * 100) : 8900,
     description,
+    descriptionEn,
     images,
     active,
     orderable: formData.get("orderable") === "1",
