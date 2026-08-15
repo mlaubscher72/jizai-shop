@@ -254,6 +254,41 @@ interface Dict {
   csLabel: string;
   csTitle: string;
   csNote: string;
+  csPiecesLabel: string;
+  /** Markeninhalte auf der Teaser-Seite — Quelle ist der JIZAI-Flyer. */
+  teaser: {
+    tagline: string;
+    whisper: string;
+    filmLabel: string;
+    filmTitle: string;
+    filmCta: string;
+    brandLabel: string;
+    brandTitle: string;
+    brandKicker: string;
+    brandBody: string;
+    brandQuote: string;
+    brandQuoteLabel: string;
+    brandBody2: string;
+    nameLabel: string;
+    nameTitle: string;
+    nameChars: string;
+    nameBody: string;
+    pathLabel: string;
+    pathTitle: string;
+    pathBody: string;
+    stages: {
+      kanji: string;
+      name: string;
+      head: string;
+      gloss: string;
+      line: string;
+      body: string;
+      quote: string;
+    }[];
+    codesLabel: string;
+    codesTitle: string;
+    codes: { n: string; name: string; body: string }[];
+  };
 }
 
 const de: Dict = {
@@ -480,6 +515,76 @@ const de: Dict = {
   csLabel: "Drop 01 · 守破 SHU × HA",
   csTitle: "Bald.",
   csNote: "Trag dich ein und erfahre als Erste:r, wenn der Drop öffnet. Kein Spam, nur Drops.",
+  csPiecesLabel: "Drop 01 · Erste Stücke",
+  teaser: {
+    tagline: "Premium budo-rooted urban streetwear",
+    whisper: "Jede Zeile muss auch geflüstert funktionieren",
+
+    filmLabel: "Der Film",
+    filmTitle: "Controlled force.",
+    filmCta: "Film ansehen",
+
+    brandLabel: "01 · Die Marke",
+    brandTitle: "Was JIZAI ist",
+    brandKicker: "Core Brand Promise",
+    brandBody:
+      "JIZAI ist eine premiumorientierte Urban-Streetwear-Marke, verwurzelt in jahrzehntelanger japanischer Kampfkunstpraxis. Die Marke übersetzt Disziplin, Wiederholung, Atem und kontrollierte Bewegung in Kleidung mit starker Silhouette, präziser Grafik und klaren materiellen Codes.",
+    brandQuote: "The quietest piece in the room. The strongest presence.",
+    brandQuoteLabel: "Controlled force",
+    brandBody2:
+      "Der Kern ist nicht Japan als Oberfläche — der Kern ist die Praxis. Fashion-first: kein Merch, kein Anime, kein Souvenir-Japan, kein Wellness-Kitsch. Kontrollierte Ruhe mit urbaner Spannung.",
+
+    nameLabel: "02 · Der Name",
+    nameTitle: "自在 · Freedom through mastery",
+    nameChars:
+      "自 „ji“ — selbst, aus sich heraus · 在 „zai“ — sein, da sein · wörtlich: aus sich selbst heraus sein",
+    nameBody:
+      "Im Gebrauch heisst 自在 frei, ungehindert, nach eigenem Belieben. Für die Marke wird daraus „Freedom through mastery“: Freiheit als Ergebnis von Form, Wiederholung und Beherrschung — nicht Freiheit von etwas. Erst wird die Form gelernt, dann gebrochen, schliesslich transzendiert. Discipline before noise.",
+
+    pathLabel: "03 · Lernweg und Kollektions-Architektur",
+    pathTitle: "SHU · HA · RI — was es bedeutet",
+    pathBody:
+      "守破離 (shu–ha–ri) beschreibt in den traditionellen japanischen Künsten — im Budo, im Teeweg, im Nō-Theater — die drei Stufen des Lernens. Man übernimmt die Form exakt, man bricht sie bewusst, man löst sich von ihr. Am Ende ist die Form nicht verschwunden, sondern in den Körper übergegangen: Man handelt frei, ohne sie zu verlassen. Genau das ist 自在. Bei JIZAI ist SHU–HA–RI deshalb beides — Lernweg der Praxis und Architektur der Kollektionen.",
+    stages: [
+      {
+        kanji: "守",
+        name: "SHU",
+        head: "Die Form halten",
+        gloss: "守 „shu“ — bewahren, schützen, befolgen",
+        line: "Die Form befolgen.",
+        body: "Reduziert und diszipliniert: Core Codes, klare Silhouetten, maximaler Negativraum. Die Herkunft und die Ruhe der Marke.",
+        quote: "Begin in silence.",
+      },
+      {
+        kanji: "破",
+        name: "HA",
+        head: "Die Form brechen",
+        gloss: "破 „ha“ — brechen, lösen, durchbrechen",
+        line: "Die Form brechen.",
+        body: "Kontrast, Cut, Rhythmus, stärkere Grafik und hybride Konstruktion. Der Bruch ist präzise gesetzt — nie zerstörerisch.",
+        quote: "Break with precision.",
+      },
+      {
+        kanji: "離",
+        name: "RI",
+        head: "Die Form verlassen",
+        gloss: "離 „ri“ — sich lösen, trennen, verlassen",
+        line: "Die Form transzendieren.",
+        body: "Freie Materialität, fortgeschrittene Pieces, Kollaboration, mühelose Eigenständigkeit. Nicht lauter — müheloser.",
+        quote: "RI bleibt der Horizont späterer Drops.",
+      },
+    ],
+
+    codesLabel: "04 · Das JIZAI Brand-Code-System",
+    codesTitle: "Fünf Codes, die jedes Stück tragen",
+    codes: [
+      { n: "01", name: "JIZAI Cut", body: "Ein präziser Unterbruch durch Form, Typografie oder Konstruktion." },
+      { n: "02", name: "Red Seal 自在", body: "Kleines 自在-Siegel als handwerkliche Signatur. Nie dominant." },
+      { n: "03", name: "Kana ジザイ", body: "Vertikales ジザイ als leises Insider-Element auf Sleeve oder Naht." },
+      { n: "04", name: "Controlled Asymmetry", body: "Optische Spannung durch versetzte Balance, nicht durch Verzerrung." },
+      { n: "05", name: "Material Mark", body: "Wiederkehrendes Verstärkungs- oder Texturdetail." },
+    ],
+  },
 };
 
 const en: Dict = {
@@ -706,6 +811,76 @@ const en: Dict = {
   csLabel: "Drop 01 · 守破 SHU × HA",
   csTitle: "Soon.",
   csNote: "Sign up and be the first to know when the drop opens. No spam, drops only.",
+  csPiecesLabel: "Drop 01 · First pieces",
+  teaser: {
+    tagline: "Premium budo-rooted urban streetwear",
+    whisper: "Every line must work when whispered",
+
+    filmLabel: "The film",
+    filmTitle: "Controlled force.",
+    filmCta: "Watch the film",
+
+    brandLabel: "01 · The brand",
+    brandTitle: "What JIZAI is",
+    brandKicker: "Core brand promise",
+    brandBody:
+      "JIZAI is a premium urban streetwear brand rooted in decades of Japanese martial arts practice. It translates discipline, repetition, breath and controlled movement into clothing with a strong silhouette, precise graphics and clear material codes.",
+    brandQuote: "The quietest piece in the room. The strongest presence.",
+    brandQuoteLabel: "Controlled force",
+    brandBody2:
+      "The core is not Japan as a surface — the core is the practice. Fashion-first: no merch, no anime, no souvenir Japan, no wellness kitsch. Controlled calm with urban tension.",
+
+    nameLabel: "02 · The name",
+    nameTitle: "自在 · Freedom through mastery",
+    nameChars:
+      "自 ‘ji’ — self, from oneself · 在 ‘zai’ — to be, to be present · literally: to exist from oneself",
+    nameBody:
+      "In use, 自在 means free, unhindered, at one’s own will. For the brand it becomes “Freedom through mastery”: freedom as the result of form, repetition and command — not freedom from something. First the form is learned, then broken, finally transcended. Discipline before noise.",
+
+    pathLabel: "03 · Path of learning and collection architecture",
+    pathTitle: "SHU · HA · RI — what it means",
+    pathBody:
+      "守破離 (shu–ha–ri) describes the three stages of learning in the traditional Japanese arts — in budo, in the way of tea, in Nō theatre. You follow the form exactly, you deliberately break it, you detach from it. In the end the form has not disappeared; it has passed into the body, so you act freely without ever leaving it. That is precisely 自在. For JIZAI, SHU–HA–RI is therefore both — the path of the practice and the architecture of the collections.",
+    stages: [
+      {
+        kanji: "守",
+        name: "SHU",
+        head: "Hold the form",
+        gloss: "守 ‘shu’ — to keep, protect, obey",
+        line: "Follow the form.",
+        body: "Reduced and disciplined: core codes, clear silhouettes, maximum negative space. The origin and the calm of the brand.",
+        quote: "Begin in silence.",
+      },
+      {
+        kanji: "破",
+        name: "HA",
+        head: "Break the form",
+        gloss: "破 ‘ha’ — to break, detach, cut through",
+        line: "Break the form.",
+        body: "Contrast, cut, rhythm, stronger graphics and hybrid construction. The break is placed with precision — never destructive.",
+        quote: "Break with precision.",
+      },
+      {
+        kanji: "離",
+        name: "RI",
+        head: "Leave the form",
+        gloss: "離 ‘ri’ — to separate, release, leave",
+        line: "Transcend the form.",
+        body: "Free materiality, advanced pieces, collaboration, effortless independence. Not louder — more effortless.",
+        quote: "RI remains the horizon of later drops.",
+      },
+    ],
+
+    codesLabel: "04 · The JIZAI brand code system",
+    codesTitle: "Five codes every piece carries",
+    codes: [
+      { n: "01", name: "JIZAI Cut", body: "A precise interruption through form, typography or construction." },
+      { n: "02", name: "Red Seal 自在", body: "A small 自在 seal as a craft signature. Never dominant." },
+      { n: "03", name: "Kana ジザイ", body: "Vertical ジザイ as a quiet insider element on sleeve or seam." },
+      { n: "04", name: "Controlled Asymmetry", body: "Optical tension through offset balance, not through distortion." },
+      { n: "05", name: "Material Mark", body: "A recurring reinforcement or texture detail." },
+    ],
+  },
 };
 
 const DICTS: Record<Lang, Dict> = { de, en };
