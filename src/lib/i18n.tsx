@@ -263,6 +263,7 @@ interface Dict {
     filmTitle: string;
     filmCta: string;
     filmYoutubeNote: string;
+    filmMutedNote: string;
     brandLabel: string;
     brandTitle: string;
     brandKicker: string;
@@ -525,6 +526,7 @@ const de: Dict = {
     filmTitle: "Controlled force.",
     filmCta: "Film ansehen",
     filmYoutubeNote: "Der Film startet über YouTube — vorher wird nichts geladen.",
+    filmMutedNote: "Läuft stumm — Ton im Player einschalten.",
 
     brandLabel: "01 · Die Marke",
     brandTitle: "Was JIZAI ist",
@@ -822,6 +824,7 @@ const en: Dict = {
     filmTitle: "Controlled force.",
     filmCta: "Watch the film",
     filmYoutubeNote: "The film plays via YouTube — nothing is loaded until you press play.",
+    filmMutedNote: "Playing muted — turn sound on in the player.",
 
     brandLabel: "01 · The brand",
     brandTitle: "What JIZAI is",
