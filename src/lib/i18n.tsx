@@ -262,6 +262,7 @@ interface Dict {
     filmLabel: string;
     filmTitle: string;
     filmCta: string;
+    filmYoutubeNote: string;
     brandLabel: string;
     brandTitle: string;
     brandKicker: string;
@@ -523,6 +524,7 @@ const de: Dict = {
     filmLabel: "Der Film",
     filmTitle: "Controlled force.",
     filmCta: "Film ansehen",
+    filmYoutubeNote: "Der Film startet über YouTube — vorher wird nichts geladen.",
 
     brandLabel: "01 · Die Marke",
     brandTitle: "Was JIZAI ist",
@@ -819,6 +821,7 @@ const en: Dict = {
     filmLabel: "The film",
     filmTitle: "Controlled force.",
     filmCta: "Watch the film",
+    filmYoutubeNote: "The film plays via YouTube — nothing is loaded until you press play.",
 
     brandLabel: "01 · The brand",
     brandTitle: "What JIZAI is",

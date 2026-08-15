@@ -20,7 +20,8 @@ import {
 import { Act, ACT_KANJI, AdminRole, OrderStatus, Product, Size, SIZES } from "@/lib/types";
 import { checkLocked, loginDelay, recordFailure, recordSuccess } from "@/lib/rate-limit";
 import { generateSecret, verifyTotp } from "@/lib/totp";
-import { setComingSoon } from "@/lib/settings";
+import { setComingSoon, setTeaserVideoId } from "@/lib/settings";
+import { parseYoutubeId } from "@/lib/youtube";
 
 /* ---------- Login / Logout ---------- */
 
@@ -299,6 +300,29 @@ export async function setComingSoonAction(formData: FormData) {
   }
   revalidatePath("/admin/website");
   revalidatePath("/");
+  redirect("/admin/website?ok=1");
+}
+
+export async function setTeaserVideoAction(formData: FormData) {
+  await requireRole("manager");
+  const input = String(formData.get("youtube") || "").trim();
+
+  // Leeres Feld = YouTube abschalten, die Seite spielt dann wieder die eigene Datei
+  let id: string | null = null;
+  if (input) {
+    id = parseYoutubeId(input);
+    if (!id) redirect("/admin/website?error=youtube");
+  }
+
+  try {
+    await setTeaserVideoId(id);
+  } catch (e) {
+    console.error("[settings] Speichern fehlgeschlagen:", e);
+    redirect("/admin/website?error=migration");
+  }
+  revalidatePath("/admin/website");
+  revalidatePath("/");
+  revalidatePath("/en");
   redirect("/admin/website?ok=1");
 }
 

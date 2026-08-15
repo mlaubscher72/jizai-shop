@@ -1,5 +1,6 @@
 import { Product } from "@/lib/types";
 import { Lang, switchPath, t } from "@/lib/i18n";
+import { getTeaserVideoId } from "@/lib/settings";
 import BrandFilm from "./BrandFilm";
 import LangSwitch from "./LangSwitch";
 import WaitlistForm from "./WaitlistForm";
@@ -12,10 +13,11 @@ import WaitlistForm from "./WaitlistForm";
  * Die Texte stammen 1:1 aus dem JIZAI-Flyer und liegen in beiden Sprachen
  * im Wörterbuch (`teaser`).
  */
-export default function ComingSoon({ products, lang }: { products: Product[]; lang: Lang }) {
+export default async function ComingSoon({ products, lang }: { products: Product[]; lang: Lang }) {
   const d = t(lang);
   const x = d.teaser;
   const shown = products.filter((p) => p.images[0]).slice(0, 3);
+  const youtubeId = await getTeaserVideoId();
 
   return (
     <main className="cs-page">
@@ -33,7 +35,7 @@ export default function ComingSoon({ products, lang }: { products: Product[]; la
         <section className="cs-section cs-film">
           <p className="section-label"><span>{x.filmLabel}</span></p>
           <h2 className="cs-h2">{x.filmTitle}</h2>
-          <BrandFilm lang={lang} />
+          <BrandFilm lang={lang} youtubeId={youtubeId} />
         </section>
 
         {/* ---- Erste Stücke ---- */}
