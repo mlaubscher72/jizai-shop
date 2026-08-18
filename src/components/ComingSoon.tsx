@@ -1,5 +1,5 @@
 import { Product } from "@/lib/types";
-import { Lang, switchPath, t } from "@/lib/i18n";
+import { Lang, localePath, switchPath, t } from "@/lib/i18n";
 import { getTeaserVideoId } from "@/lib/settings";
 import BrandFilm from "./BrandFilm";
 import LangSwitch from "./LangSwitch";
@@ -127,6 +127,8 @@ export default async function ComingSoon({ products, lang }: { products: Product
           <span>© 2026 JIZAI · ジザイ</span>
           <span className="cs-foot-quote">First the form. Then the freedom.</span>
           <a href="mailto:hello@jizai.ch" data-hover>hello@jizai.ch</a>
+          <a href={localePath(lang, "/datenschutz")} data-hover>{d.footerPrivacy}</a>
+          <a href={localePath(lang, "/impressum")} data-hover>{d.footerImprint}</a>
           {/* Die Nav ist auf der Teaser-Seite ausgeblendet — der Umschalter muss hierhin */}
           <LangSwitch lang={lang} href={switchPath(lang === "de" ? "/" : "/en")} className="cs-lang" />
         </footer>

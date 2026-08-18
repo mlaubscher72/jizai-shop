@@ -46,6 +46,14 @@ export default function Footer({ lang }: { lang: Lang }) {
             <a href="/admin" className="footer-admin" data-hover>{d.footerAdmin}</a>
           </p>
         </div>
+        <div>
+          <p className="footer-label">{d.footerLegalLabel}</p>
+          <p>
+            <a href={localePath(lang, "/datenschutz")} data-hover>{d.footerPrivacy}</a>
+            <br />
+            <a href={localePath(lang, "/impressum")} data-hover>{d.footerImprint}</a>
+          </p>
+        </div>
       </div>
       <div className="footer-bottom">
         <span>© 2026 JIZAI · ジザイ</span>

@@ -16,15 +16,24 @@ export type Lang = "de" | "en";
 
 export const LANGS: Lang[] = ["de", "en"];
 
-/** Die Bestellverfolgung heisst auf Deutsch /bestellung, auf Englisch /en/order. */
-const ORDER_DE = "/bestellung";
-const ORDER_EN = "/en/order";
+/**
+ * Seiten, deren englischer Pfad nicht einfach /en + deutscher Pfad ist.
+ * Schlüssel ist immer der deutsche Pfad.
+ */
+const PATH_MAP: Record<string, string> = {
+  "/bestellung": "/en/order",
+  "/datenschutz": "/en/privacy",
+  "/impressum": "/en/imprint",
+};
+const PATH_MAP_BACK: Record<string, string> = Object.fromEntries(
+  Object.entries(PATH_MAP).map(([de, en]) => [en, de])
+);
 
 /** Pfad in der jeweiligen Sprache. Deutsch bleibt ohne Präfix. */
 export function localePath(lang: Lang, path: string): string {
   const clean = path.startsWith("/") ? path : `/${path}`;
   if (lang === "de") return clean;
-  if (clean === ORDER_DE) return ORDER_EN;
+  if (PATH_MAP[clean]) return PATH_MAP[clean];
   return clean === "/" ? "/en" : `/en${clean}`;
 }
 
@@ -36,10 +45,10 @@ export function langFromPath(pathname: string): Lang {
 /** Gegenstück des aktuellen Pfads in der anderen Sprache — für den Umschalter. */
 export function switchPath(pathname: string): string {
   if (langFromPath(pathname) === "de") {
-    if (pathname === ORDER_DE) return ORDER_EN;
+    if (PATH_MAP[pathname]) return PATH_MAP[pathname];
     return pathname === "/" ? "/en" : `/en${pathname}`;
   }
-  if (pathname === ORDER_EN) return ORDER_DE;
+  if (PATH_MAP_BACK[pathname]) return PATH_MAP_BACK[pathname];
   const stripped = pathname.replace(/^\/en/, "");
   return stripped === "" ? "/" : stripped;
 }
@@ -150,6 +159,9 @@ interface Dict {
   footerOrderLabel: string;
   footerTrackOrder: string;
   footerAdmin: string;
+  footerLegalLabel: string;
+  footerPrivacy: string;
+  footerImprint: string;
   footerSealTitle: string;
   footerSealMeaning: string;
 
@@ -399,6 +411,9 @@ const de: Dict = {
   footerOrderLabel: "Bestellung",
   footerTrackOrder: "Bestellung verfolgen",
   footerAdmin: "Admin",
+  footerLegalLabel: "Rechtliches",
+  footerPrivacy: "Datenschutz",
+  footerImprint: "Impressum",
   footerSealTitle: "自在 jizai — im eigenen Sein",
   footerSealMeaning: "im eigenen Sein",
 
@@ -697,6 +712,9 @@ const en: Dict = {
   footerOrderLabel: "Order",
   footerTrackOrder: "Track your order",
   footerAdmin: "Admin",
+  footerLegalLabel: "Legal",
+  footerPrivacy: "Privacy",
+  footerImprint: "Legal notice",
   footerSealTitle: "自在 jizai — within one's own being",
   footerSealMeaning: "within one's own being",
 
